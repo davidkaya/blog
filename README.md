@@ -1,62 +1,102 @@
-# Astro Starter Kit: Blog
+# kaya.sk
+
+Personal blog and portfolio site built with [Astro](https://astro.build). Features blog posts, talk
+slides (reveal.js), and a terminal-themed design with dark/light mode support.
+
+🔗 **Live at [blog.kaya.sk](https://blog.kaya.sk)**
+
+## Features
+
+- 📝 Blog posts in Markdown/MDX with auto-discovery
+- 🎤 Talk slides built from Markdown source via [reveal-md](https://github.com/webpro/reveal-md)
+- 🌙 Dark/light mode with theme persistence
+- 🖥️ Terminal/hacker aesthetic with matrix rain background
+- 📡 RSS feed, sitemap, SEO-friendly
+- ⚡ 100% static output
+
+## Quick Start
 
 ```sh
-bun create astro@latest -- --template blog
+bun install
+bun run dev       # Start dev server at localhost:4321
+bun run build     # Build slides + site to ./dist/
+bun run preview   # Preview the built site
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## Adding Content
 
-Features:
+### New Blog Post
 
-- ✅ Minimal styling (make it your own!)
-- ✅ 100/100 Lighthouse performance
-- ✅ SEO-friendly with canonical URLs and OpenGraph data
-- ✅ Sitemap support
-- ✅ RSS Feed support
-- ✅ Markdown & MDX support
+Create `src/content/blog/<slug>.md`:
 
-## 🚀 Project Structure
+```markdown
+---
+title: "Your Title"
+description: "A short description"
+pubDate: "2026-02-25"
+tags: ["dotnet", "csharp"]
+---
 
-Inside of your Astro project, you'll see the following folders and files:
+Your content here...
+```
 
-```text
-├── public/
+The post appears automatically on the home page, blog listing, and RSS feed.
+
+### New Presentation (with slides)
+
+1. Create a folder: `talks/<category>/<Talk Name>/`
+2. Add `presentation.md` (reveal-md Markdown slides)
+3. Add `meta.json`:
+   ```json
+   {
+     "slug": "my-talk",
+     "tag": "Topic"
+   }
+   ```
+
+Run `bun run build` — slides are auto-discovered, built, and shown on the talks page and home page.
+
+### New Past Talk (no slides)
+
+Add an entry to the `speakingLog` array in `src/pages/talks.astro`:
+
+```js
+{ date: "2026-01", title: "Talk Title", venue: "Event Name", url: "https://..." }
+```
+
+The `url` field is optional — omit it for talks without an external link.
+
+## Project Structure
+
+```
 ├── src/
-│   ├── components/
-│   ├── content/
-│   ├── layouts/
-│   └── pages/
-├── astro.config.mjs
-├── README.md
-├── package.json
-└── tsconfig.json
+│   ├── components/         # Astro components (Header, MatrixRain, etc.)
+│   ├── content/blog/       # Blog posts (Markdown/MDX)
+│   ├── layouts/            # BaseLayout, BlogPost
+│   ├── pages/              # Routes: /, /blog, /talks, /about
+│   ├── styles/global.css   # Theme variables, shared styles
+│   └── consts.ts           # Site title, description, author
+├── talks/                  # Presentation source (Markdown + reveal-md config)
+├── scripts/                # Build scripts (slides pipeline)
+├── public/                 # Static assets (slides/ is generated, gitignored)
+└── astro.config.mjs        # Astro config
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+## Commands
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+| Command                | Action                                      |
+| :--------------------- | :------------------------------------------ |
+| `bun install`          | Install dependencies                        |
+| `bun run dev`          | Start dev server at `localhost:4321`         |
+| `bun run build`        | Build slides from source + build Astro site |
+| `bun run build:slides` | Build only the slides                       |
+| `bun run preview`      | Preview built site locally                  |
 
-The `src/content/` directory contains "collections" of related Markdown and MDX documents. Use `getCollection()` to retrieve posts from `src/content/blog/`, and type-check your frontmatter using an optional schema. See [Astro's Content Collections docs](https://docs.astro.build/en/guides/content-collections/) to learn more.
+## License
 
-Any static assets, like images, can be placed in the `public/` directory.
+This project uses a dual license:
 
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `bun install`             | Installs dependencies                            |
-| `bun dev`             | Starts local dev server at `localhost:4321`      |
-| `bun build`           | Build your production site to `./dist/`          |
-| `bun preview`         | Preview your build locally, before deploying     |
-| `bun astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `bun astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Check out [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
-
-## Credit
-
-This theme is based off of the lovely [Bear Blog](https://github.com/HermanMartinus/bearblog/).
+- **Code** (Astro components, layouts, styles, scripts, configuration) is licensed under the
+  [GNU General Public License v3.0](LICENSE).
+- **Content** (blog posts in `src/content/blog/`, presentations in `talks/`) is licensed under
+  [Creative Commons Attribution 4.0 International](LICENSE-CONTENT) (CC BY 4.0).
