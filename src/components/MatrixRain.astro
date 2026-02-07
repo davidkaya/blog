@@ -1,0 +1,47 @@
+---
+---
+
+<canvas id="matrix"></canvas>
+<style>
+  #matrix {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    opacity: 0.06;
+  }
+</style>
+<script>
+  const c = document.getElementById("matrix") as HTMLCanvasElement;
+  const ctx = c.getContext("2d")!;
+  let cols: number;
+  let drops: number[];
+
+  function resize() {
+    c.width = window.innerWidth;
+    c.height = window.innerHeight;
+    const s = 14;
+    cols = Math.floor(c.width / s);
+    drops = Array.from({ length: cols }, () => Math.random() * -100);
+  }
+
+  resize();
+  window.addEventListener("resize", resize);
+
+  const chars = "01アイウエオカキクケコ{}[];:<>=+-*/&|^~";
+
+  function draw() {
+    ctx.fillStyle = "rgba(10, 14, 20, 0.05)";
+    ctx.fillRect(0, 0, c.width, c.height);
+    ctx.fillStyle = "#39bae6";
+    ctx.font = "14px monospace";
+
+    for (let i = 0; i < cols; i++) {
+      const ch = chars[Math.floor(Math.random() * chars.length)];
+      ctx.fillText(ch, i * 14, drops[i] * 14);
+      if (drops[i] * 14 > c.height && Math.random() > 0.975) drops[i] = 0;
+      drops[i]++;
+    }
+  }
+
+  setInterval(draw, 60);
+</script>

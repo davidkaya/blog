@@ -1,0 +1,164 @@
+---
+import { getCollection } from "astro:content";
+import BaseHead from "../components/BaseHead.astro";
+import Footer from "../components/Footer.astro";
+import Header from "../components/Header.astro";
+import MatrixRain from "../components/MatrixRain.astro";
+import PostCard from "../components/PostCard.astro";
+import TerminalWindow from "../components/TerminalWindow.astro";
+import { SITE_DESCRIPTION, SITE_TITLE } from "../consts";
+
+const posts = (await getCollection("blog")).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
+const postCount = posts.length;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+  </head>
+  <body>
+    <MatrixRain />
+    <Header />
+    <main>
+      <!-- Terminal boot sequence -->
+      <TerminalWindow>
+        <div class="boot">
+          <div>
+            <span class="ok">[&nbsp;OK&nbsp;]</span> Loading blog posts&hellip;
+          </div>
+          <div>
+            <span class="ok">[&nbsp;OK&nbsp;]</span> Detected <span
+              class="highlight">{postCount}</span
+            > articles
+          </div>
+          <div>
+            <span class="ok">[&nbsp;OK&nbsp;]</span> No bugs found. <span
+              class="highlight">Suspicious.</span
+            >
+          </div>
+          <div style="margin-top: 0.5rem">
+            <span class="prompt">$</span> ls ./posts<span class="cursor"
+            ></span>
+          </div>
+        </div>
+      </TerminalWindow>
+
+      <!-- ASCII header -->
+      <div class="header-block">
+        <pre class="ascii-art"
+          >{` ____  _     ___   ____
+| __ )| |   / _ \\ / ___|
+|  _ \\| |  | | | | |  _
+| |_) | |__| |_| | |_| |
+|____/|_____|\\___/ \\____| .kaya.sk`}</pre>
+        <p class="tagline">Technical writing & live-coding insights</p>
+      </div>
+
+      <!-- Recent posts -->
+      <div class="section">
+        <div class="section-header">
+          <span class="icon">📝</span> Recent Posts
+        </div>
+        <div class="posts">
+          {posts.map((post) => <PostCard post={post} />)}
+        </div>
+      </div>
+    </main>
+    <Footer />
+  </body>
+</html>
+
+<style>
+  body {
+    position: relative;
+    z-index: 1;
+  }
+  main {
+    position: relative;
+    z-index: 1;
+  }
+  .boot {
+    font-size: 0.8rem;
+    line-height: 1.8;
+    color: var(--text-muted);
+  }
+  .boot .ok {
+    color: var(--accent-green);
+  }
+  .boot .highlight {
+    color: var(--accent-yellow);
+  }
+  .prompt {
+    color: var(--accent-green);
+  }
+  .cursor {
+    display: inline-block;
+    width: 0.55em;
+    height: 1.1em;
+    background: var(--accent-green);
+    vertical-align: text-bottom;
+    animation: blink 1s step-end infinite;
+  }
+  @keyframes blink {
+    50% {
+      opacity: 0;
+    }
+  }
+  .header-block {
+    text-align: center;
+    margin: 2.5rem 0;
+  }
+  .ascii-art {
+    font-size: 0.55rem;
+    line-height: 1.15;
+    color: var(--accent-cyan);
+    margin-bottom: 1rem;
+    overflow: hidden;
+    text-align: left;
+    display: inline-block;
+    background: none;
+    border: none;
+    padding: 0;
+  }
+  @media (min-width: 640px) {
+    .ascii-art {
+      font-size: 0.7rem;
+    }
+  }
+  .tagline {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+  .section {
+    margin-bottom: 2rem;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--text-muted);
+  }
+  .section-header::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, var(--border), transparent);
+  }
+  .icon {
+    font-size: 0.85rem;
+  }
+  .posts {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+</style>

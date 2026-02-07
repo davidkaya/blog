@@ -1,0 +1,126 @@
+---
+import BaseHead from "../components/BaseHead.astro";
+import Footer from "../components/Footer.astro";
+import Header from "../components/Header.astro";
+import MatrixRain from "../components/MatrixRain.astro";
+import TerminalWindow from "../components/TerminalWindow.astro";
+import { SITE_TITLE } from "../consts";
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <BaseHead title={`About — ${SITE_TITLE}`} description="About Dávid Kaya" />
+  </head>
+  <body>
+    <MatrixRain />
+    <Header />
+    <main>
+      <TerminalWindow title="david@kaya ~ /about">
+        <div class="whoami">
+          <div>
+            <span class="prompt">$</span> whoami
+          </div>
+          <div class="output">
+            <p>
+              <strong>Dávid Kaya</strong> — Software engineer writing about .NET, AI, developer
+              tooling, and the craft of building software.
+            </p>
+            <p>
+              I build things, break things, and occasionally write about what I learn along the way.
+              This blog is where I share technical deep-dives, practical tutorials, and thoughts on
+              the evolving landscape of software engineering.
+            </p>
+          </div>
+        </div>
+      </TerminalWindow>
+
+      <div class="links-section">
+        <h2>Find me elsewhere</h2>
+        <div class="links">
+          <a href="https://github.com/davidkaya" target="_blank" class="link-card">
+            <span class="link-label">GitHub</span>
+            <span class="link-value">@davidkaya</span>
+          </a>
+          <a href="https://slides.kaya.sk" target="_blank" class="link-card">
+            <span class="link-label">Talks</span>
+            <span class="link-value">slides.kaya.sk</span>
+          </a>
+        </div>
+      </div>
+    </main>
+    <Footer />
+  </body>
+</html>
+
+<style>
+  body {
+    position: relative;
+    z-index: 1;
+  }
+  main {
+    position: relative;
+    z-index: 1;
+  }
+  .whoami {
+    font-size: 0.85rem;
+    line-height: 1.8;
+  }
+  .prompt {
+    color: var(--accent-green);
+  }
+  .output {
+    margin-top: 0.5rem;
+    color: var(--text);
+  }
+  .output p {
+    margin-bottom: 0.75rem;
+  }
+  .output p:last-child {
+    margin-bottom: 0;
+  }
+  .links-section {
+    margin-top: 2rem;
+  }
+  .links-section h2 {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+  }
+  .links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .link-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-decoration: none;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--border);
+    border-radius: 0.25rem;
+    padding: 0.75rem 1rem;
+    transition: all 0.2s ease;
+  }
+  .link-card:hover {
+    background: var(--bg-surface);
+    border-left-color: var(--accent-cyan);
+    transform: translateX(4px);
+  }
+  .link-label {
+    color: var(--text-bright);
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+  .link-card:hover .link-label {
+    color: var(--accent-cyan);
+  }
+  .link-value {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+  }
+</style>
