@@ -32,6 +32,18 @@ const { title, description } = Astro.props;
 <meta name="title" content={title} />
 <meta name="description" content={description} />
 
+<!-- Theme initialization (inline to prevent flash) -->
+<script is:inline>
+  (function() {
+    const stored = localStorage.getItem("theme");
+    if (stored) {
+      document.documentElement.setAttribute("data-theme", stored);
+    } else if (window.matchMedia("(prefers-color-scheme: light)").matches) {
+      document.documentElement.setAttribute("data-theme", "light");
+    }
+  })();
+</script>
+
 <!-- Open Graph / Facebook -->
 <meta property="og:type" content="website" />
 <meta property="og:url" content={Astro.url} />

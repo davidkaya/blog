@@ -8,6 +8,7 @@
     inset: 0;
     z-index: 0;
     opacity: 0.06;
+    pointer-events: none;
   }
 </style>
 <script>
@@ -29,10 +30,19 @@
 
   const chars = "01アイウエオカキクケコ{}[];:<>=+-*/&|^~";
 
+  function getThemeColors() {
+    const style = getComputedStyle(document.documentElement);
+    return {
+      bg: style.getPropertyValue("--matrix-bg").trim(),
+      fg: style.getPropertyValue("--matrix-fg").trim(),
+    };
+  }
+
   function draw() {
-    ctx.fillStyle = "rgba(10, 14, 20, 0.05)";
+    const colors = getThemeColors();
+    ctx.fillStyle = colors.bg;
     ctx.fillRect(0, 0, c.width, c.height);
-    ctx.fillStyle = "#39bae6";
+    ctx.fillStyle = colors.fg;
     ctx.font = "14px monospace";
 
     for (let i = 0; i < cols; i++) {

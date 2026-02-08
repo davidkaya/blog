@@ -10,8 +10,13 @@ import HeaderLink from "./HeaderLink.astro";
     >
     <div class="nav-links">
       <HeaderLink href="/blog">posts</HeaderLink>
+      <HeaderLink href="/talks">talks</HeaderLink>
       <HeaderLink href="/about">about</HeaderLink>
       <HeaderLink href="/rss.xml">rss</HeaderLink>
+      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">
+        <span class="icon-dark">☀️</span>
+        <span class="icon-light">🌙</span>
+      </button>
     </div>
   </nav>
 </header>
@@ -44,5 +49,30 @@ import HeaderLink from "./HeaderLink.astro";
     display: flex;
     gap: 1.25rem;
     font-size: 0.8rem;
+    align-items: center;
   }
+  .theme-toggle {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 0.25rem;
+    cursor: pointer;
+    padding: 0.2rem 0.4rem;
+    font-size: 0.75rem;
+    line-height: 1;
+    transition: border-color 0.15s;
+  }
+  .theme-toggle:hover {
+    border-color: var(--accent-cyan);
+  }
+  :root:not([data-theme="light"]) .icon-light { display: none; }
+  :global([data-theme="light"]) .icon-dark { display: none; }
 </style>
+<script>
+  const toggle = document.getElementById("theme-toggle")!;
+  toggle.addEventListener("click", () => {
+    const current = document.documentElement.getAttribute("data-theme");
+    const next = current === "light" ? "dark" : "light";
+    document.documentElement.setAttribute("data-theme", next);
+    localStorage.setItem("theme", next);
+  });
+</script>
