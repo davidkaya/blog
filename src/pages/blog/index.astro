@@ -1,59 +1,39 @@
 ---
 import { getCollection } from "astro:content";
-import BaseHead from "../../components/BaseHead.astro";
-import Footer from "../../components/Footer.astro";
-import Header from "../../components/Header.astro";
-import MatrixRain from "../../components/MatrixRain.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
 import PostCard from "../../components/PostCard.astro";
+import TerminalWindow from "../../components/TerminalWindow.astro";
 import { SITE_TITLE } from "../../consts";
 
 const posts = (await getCollection("blog")).sort(
   (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
+const postCount = posts.length;
 ---
 
-<!doctype html>
-<html lang="en">
-  <head>
-    <BaseHead title={`All Posts — ${SITE_TITLE}`} description="All blog posts" />
-  </head>
-  <body>
-    <MatrixRain />
-    <Header />
-    <main>
-      <div class="page-title">
-        <span class="prompt">$</span> ls ./posts/
+<BaseLayout title={`All Posts — ${SITE_TITLE}`} description="All blog posts">
+  <TerminalWindow title="david@kaya ~ /posts">
+    <div class="boot">
+      <div>
+        <span class="prompt">$</span> ls ./posts/ <span class="muted">| wc -l</span>
       </div>
+      <div>
+        <span class="highlight">{postCount}</span>
+      </div>
+      <div style="margin-top: 0.5rem">
+        <span class="prompt">$</span> ls ./posts/<span class="cursor"></span>
+      </div>
+    </div>
+  </TerminalWindow>
 
-      <div class="posts">
-        {posts.map((post) => <PostCard post={post} />)}
-      </div>
-    </main>
-    <Footer />
-  </body>
-</html>
+  <div class="posts">
+    {posts.map((post) => <PostCard post={post} />)}
+  </div>
+</BaseLayout>
 
 <style>
-  body {
-    position: relative;
-    z-index: 1;
-  }
-  main {
-    position: relative;
-    z-index: 1;
-  }
-  .page-title {
-    font-size: 1rem;
-    color: var(--text-bright);
-    margin-bottom: 1.5rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 1px solid var(--border);
-  }
-  .prompt {
-    color: var(--accent-green);
-    margin-right: 0.3em;
-  }
   .posts {
+    margin-top: 1.5rem;
     display: flex;
     flex-direction: column;
     gap: 0.6rem;

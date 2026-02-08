@@ -1,0 +1,196 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import TerminalWindow from "../components/TerminalWindow.astro";
+import { SITE_TITLE } from "../consts";
+import slidesManifest from "../../public/slides/talks.json";
+
+const slides = slidesManifest;
+
+const speakingLog = [
+  { date: "2021-03", title: "Building Serverless applications using Azure Functions", venue: "Žijeme IT", url: "http://www.zijemeit.cz/workshop?programId=7" },
+  { date: "2020-11", title: "Building Serverless applications using Azure Functions", venue: "Masaryk University", url: "https://www.meetup.com/ysoft-th/events/270218334/" },
+  { date: "2020-10", title: "What's new in C# 9", venue: "Internal" },
+  { date: "2020-05", title: "Building Serverless applications using Azure Functions", venue: "Online (Slovak)", url: "https://www.meetup.com/ysoft-th/events/270218334/" },
+  { date: "2019-12", title: "What's new in C# 8?", venue: "Masaryk University" },
+  { date: "2019-11", title: "Printers are not that boring as they might look", venue: "TechMeetup Ostrava", url: "https://www.techmeetup.cz/" },
+  { date: "2019-05", title: "What's new in C# 8?", venue: "Ostrava", url: "https://www.meetup.com/ysoft-th/events/261316907/" },
+  { date: "2019-05", title: "What is Span<T> and Memory<T> and how to use them", venue: "Internal" },
+  { date: "2019-04", title: "OpenAPI boosts your effectiveness during .NET Core app dev", venue: "Y Soft TH", url: "https://www.meetup.com/ysoft-th/events/258878047/" },
+  { date: "2018-01", title: "Development of mobile applications in Xamarin", venue: "FI MUNI", url: "https://www.fi.muni.cz/" },
+  { date: "2018-01", title: "Introduction to Xamarin", venue: "FI MUNI", url: "https://www.fi.muni.cz/" },
+  { date: "2017-01", title: "Development of mobile applications in Xamarin", venue: "FI MUNI", url: "https://www.fi.muni.cz/" },
+  { date: "2017-01", title: "Development of mobile applications in Xamarin", venue: "VUT Brno", url: "https://www.vutbr.cz/" },
+  { date: "2017-01", title: "Cross-platform development of mobile applications", venue: "High schools, Brno" },
+];
+---
+
+<BaseLayout title={`Talks — ${SITE_TITLE}`} description="Conference and meetup talks by Dávid Kaya">
+  <TerminalWindow title="david@kaya ~ /talks">
+    <div class="boot">
+      <div><span class="prompt">$</span> tree ./talks/</div>
+      <div class="tree-output">
+        <div>./talks/</div>
+        <div>├── slides/<span class="muted">     ({slides.length} decks)</span></div>
+        <div>└── history.log<span class="muted">  ({speakingLog.length} appearances)</span></div>
+      </div>
+      <div style="margin-top: 0.5rem">
+        <span class="prompt">$</span> <span class="cursor"></span>
+      </div>
+    </div>
+  </TerminalWindow>
+
+  <!-- Slide Decks -->
+  <div class="section">
+    <div class="section-header">
+      <span class="icon">📂</span> ./slides/
+    </div>
+    <div class="slides-grid">
+      {slides.map((slide) => (
+        <a href={slide.url} class="slide-card">
+          <span class="slide-tag">{slide.tag}</span>
+          <span class="slide-title">{slide.title}</span>
+          <span class="slide-action">▶ View Slides</span>
+        </a>
+      ))}
+    </div>
+  </div>
+
+  <!-- Speaking Log -->
+  <div class="section">
+    <div class="section-header">
+      <span class="icon">📄</span> cat history.log
+    </div>
+    <div class="log">
+      {speakingLog.map((entry) => (
+        <div class="log-entry">
+          <span class="log-date">[{entry.date}]</span>
+          {entry.url ? (
+            <a href={entry.url} target="_blank" rel="noopener noreferrer" class="log-title log-link">{entry.title}</a>
+          ) : (
+            <span class="log-title">{entry.title}</span>
+          )}
+          <span class="log-venue">@ {entry.venue}</span>
+        </div>
+      ))}
+    </div>
+  </div>
+
+  <div class="cta">
+    I am open to any speaking opportunity. If you would like me to speak at your event, just drop me a message.
+  </div>
+</BaseLayout>
+
+<style>
+  .tree-output {
+    padding-left: 0.5rem;
+    color: var(--accent-cyan);
+    font-family: monospace;
+  }
+  .section-header {
+    margin-bottom: 1rem;
+    font-family: monospace;
+  }
+
+  /* Slide deck cards */
+  .slides-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.75rem;
+  }
+  .slide-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    text-decoration: none;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 0.375rem;
+    padding: 1.25rem 1rem;
+    transition: all 0.2s ease;
+  }
+  .slide-card:hover {
+    background: var(--bg-surface);
+    border-color: var(--accent-cyan);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+  .slide-tag {
+    display: inline-block;
+    width: fit-content;
+    font-size: 0.6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 0.15rem 0.5rem;
+    border-radius: 2px;
+    color: var(--accent-yellow);
+    border: 1px solid var(--accent-yellow);
+    opacity: 0.8;
+  }
+  .slide-title {
+    display: block;
+    color: var(--text-bright);
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+  .slide-card:hover .slide-title {
+    color: var(--accent-cyan);
+  }
+  .slide-action {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-top: auto;
+    transition: color 0.2s ease;
+  }
+  .slide-card:hover .slide-action {
+    color: var(--accent-green);
+  }
+
+  /* Speaking log */
+  .log {
+    font-family: monospace;
+    font-size: 0.78rem;
+    line-height: 1.9;
+    border: 1px solid var(--border);
+    border-radius: 0.25rem;
+    background: var(--bg-card);
+    padding: 0.75rem 1rem;
+    overflow-x: auto;
+  }
+  .log-entry {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    align-items: baseline;
+    white-space: nowrap;
+  }
+  .log-date {
+    color: var(--accent-cyan);
+    flex-shrink: 0;
+  }
+  .log-title {
+    color: var(--text-bright);
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .log-link {
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+  .log-link:hover {
+    color: var(--accent-cyan);
+    text-decoration: underline;
+  }
+  .log-venue {
+    color: var(--text-muted);
+    flex-shrink: 0;
+  }
+  .cta {
+    margin-top: 2rem;
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    padding: 1rem;
+    border: 1px dashed var(--border);
+    border-radius: 0.25rem;
+  }
+</style>
