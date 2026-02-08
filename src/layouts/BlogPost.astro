@@ -1,68 +1,46 @@
 ---
 import type { CollectionEntry } from "astro:content";
-import BaseHead from "../components/BaseHead.astro";
-import Footer from "../components/Footer.astro";
+import BaseLayout from "./BaseLayout.astro";
 import FormattedDate from "../components/FormattedDate.astro";
-import Header from "../components/Header.astro";
-import MatrixRain from "../components/MatrixRain.astro";
 
 type Props = CollectionEntry<"blog">["data"];
 
 const { title, description, pubDate, updatedDate, tags } = Astro.props;
 ---
 
-<html lang="en">
-  <head>
-    <BaseHead title={title} description={description} />
-  </head>
-
-  <body>
-    <MatrixRain />
-    <Header />
-    <main>
-      <article>
-        <div class="post-header">
-          <a href="/blog" class="back">&larr; back to posts</a>
-          <div class="meta">
-            <FormattedDate date={pubDate} />
-            {
-              updatedDate && (
-                <span class="updated">
-                  &middot; updated <FormattedDate date={updatedDate} />
-                </span>
-              )
-            }
+<BaseLayout title={title} description={description}>
+  <article>
+    <div class="post-header">
+      <a href="/blog" class="back">&larr; back to posts</a>
+      <div class="meta">
+        <FormattedDate date={pubDate} />
+        {
+          updatedDate && (
+            <span class="updated">
+              &middot; updated <FormattedDate date={updatedDate} />
+            </span>
+          )
+        }
+      </div>
+      <h1>{title}</h1>
+      {
+        tags && tags.length > 0 && (
+          <div class="tags">
+            {tags.map((tag: string) => (
+              <span class="tag">{tag}</span>
+            ))}
           </div>
-          <h1>{title}</h1>
-          {
-            tags && tags.length > 0 && (
-              <div class="tags">
-                {tags.map((tag: string) => (
-                  <span class="tag">{tag}</span>
-                ))}
-              </div>
-            )
-          }
-          <hr />
-        </div>
-        <div class="prose">
-          <slot />
-        </div>
-      </article>
-    </main>
-    <Footer />
-  </body>
-</html>
+        )
+      }
+      <hr />
+    </div>
+    <div class="prose">
+      <slot />
+    </div>
+  </article>
+</BaseLayout>
 
 <style>
-  body {
-    position: relative;
-    z-index: 1;
-  }
-  main {
-    position: relative;
-    z-index: 1;
-  }
   .post-header {
     margin-bottom: 2rem;
   }
@@ -103,9 +81,9 @@ const { title, description, pubDate, updatedDate, tags } = Astro.props;
     letter-spacing: 0.05em;
     padding: 0.15rem 0.5rem;
     border-radius: 2px;
-    border: 1px solid #3d3015;
+    border: 1px solid var(--tag-border);
     color: var(--accent-yellow);
-    background: #1a1508;
+    background: var(--tag-bg);
   }
   hr {
     border: none;
