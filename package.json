@@ -4,7 +4,8 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build:slides": "node scripts/build-slides.mjs",
+    "build": "node scripts/build-slides.mjs && astro build",
     "preview": "astro preview",
     "astro": "astro"
   },
@@ -14,5 +15,8 @@
     "@astrojs/sitemap": "^3.7.0",
     "astro": "^5.17.1",
     "sharp": "^0.34.3"
+  },
+  "devDependencies": {
+    "reveal-md": "^6.1.4"
   }
 }

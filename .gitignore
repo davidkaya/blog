@@ -22,3 +22,7 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# slides (built from source during build)
+public/slides/
+.slides-tmp/
