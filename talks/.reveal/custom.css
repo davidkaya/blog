@@ -1,0 +1,227 @@
+/* ==========================================================================
+   Custom theme — matches the slides.kaya.sk landing page aesthetic
+   Base: reveal.js "night" theme, overridden to terminal/hacker style
+   ========================================================================== */
+
+/* -- Palette --
+   bg:          #0a0e14
+   surface:     #0d1117
+   border:      #1c2333
+   text:        #b3b1ad
+   text-bright: #e6e1cf
+   cyan:        #39bae6
+   gold:        #e6b450
+   green:       #23d18b
+   red:         #f14c4c
+   muted:       #454d5e
+   -------------------------------------------------------- */
+
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,600;0,700;1,400&display=swap");
+
+/* ---- Global ---- */
+
+.reveal {
+  font-family: "JetBrains Mono", "Fira Code", "Cascadia Code", monospace;
+  font-size: 22px;
+  color: #b3b1ad;
+}
+
+.reveal .slides {
+  text-align: left;
+}
+
+.reveal section {
+  text-align: left;
+  padding: 0.5em;
+}
+
+/* ---- Backgrounds ---- */
+
+body {
+  background: #0a0e14 !important;
+}
+
+.reveal .slide-background {
+  background: #0a0e14;
+}
+
+/* ---- Headings ---- */
+
+.reveal h1,
+.reveal h2,
+.reveal h3,
+.reveal h4 {
+  font-family: "JetBrains Mono", "Fira Code", monospace;
+  color: #39bae6;
+  text-transform: none;
+  letter-spacing: -0.01em;
+  text-align: left;
+}
+
+.reveal h1 {
+  font-size: 2em;
+  color: #39bae6;
+  text-shadow: 0 0 40px rgba(57, 186, 230, 0.15);
+}
+
+.reveal h2 {
+  font-size: 1.4em;
+  margin-bottom: 0.3em;
+  color: #39bae6;
+}
+
+.reveal h3 {
+  font-size: 1.1em;
+  margin: 0.3em 0;
+  color: #e6b450;
+}
+
+/* ---- Body text ---- */
+
+.reveal p {
+  margin: 0.2em 0;
+  line-height: 1.4;
+}
+
+.reveal strong {
+  color: #e6e1cf;
+}
+
+.reveal em {
+  color: #e6b450;
+  font-style: italic;
+}
+
+.reveal a {
+  color: #39bae6;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(57, 186, 230, 0.3);
+  transition: border-color 0.2s;
+}
+
+.reveal a:hover {
+  border-bottom-color: #39bae6;
+}
+
+/* ---- Lists ---- */
+
+.reveal ul,
+.reveal ol {
+  font-size: 0.9em;
+}
+
+.reveal li {
+  margin: 0.15em 0;
+  line-height: 1.35;
+}
+
+.reveal li::marker {
+  color: #454d5e;
+}
+
+/* ---- Code ---- */
+
+.reveal pre {
+  font-size: 0.52em;
+  width: 100%;
+  margin: 0.3em auto;
+  background: #0d1117;
+  border: 1px solid #1c2333;
+  border-radius: 4px;
+  box-shadow: none;
+}
+
+.reveal pre code {
+  font-family: "JetBrains Mono", "Fira Code", monospace;
+  line-height: 1.4;
+  padding: 0.8em 1em;
+}
+
+.reveal code:not(.hljs) {
+  font-size: 0.85em;
+  color: #e6b450;
+  background: rgba(13, 17, 23, 0.6);
+  padding: 0.1em 0.35em;
+  border-radius: 3px;
+  border: 1px solid #1c2333;
+}
+
+/* ---- Tables ---- */
+
+.reveal table {
+  font-size: 0.6em;
+  margin: 0.3em auto;
+  border-collapse: collapse;
+}
+
+.reveal table th,
+.reveal table td {
+  padding: 0.25em 0.6em;
+  border: 1px solid #1c2333;
+  text-align: left;
+}
+
+.reveal table th {
+  background: #131720;
+  color: #39bae6;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.9em;
+  letter-spacing: 0.04em;
+}
+
+.reveal table td {
+  background: #0d1117;
+}
+
+.reveal table tr:hover td {
+  background: #131720;
+}
+
+/* ---- Blockquotes ---- */
+
+.reveal blockquote {
+  font-size: 0.8em;
+  padding: 0.3em 0.8em;
+  margin: 0.3em 0;
+  background: rgba(13, 17, 23, 0.6);
+  border-left: 3px solid #39bae6;
+  border-radius: 0 4px 4px 0;
+  color: #626a7a;
+  font-style: normal;
+}
+
+.reveal blockquote p {
+  color: #626a7a;
+}
+
+/* ---- Mermaid ---- */
+
+.reveal .mermaid {
+  font-size: 0.8em;
+}
+
+/* ---- Horizontal rules (slide-internal) ---- */
+
+.reveal hr {
+  border: none;
+  border-top: 1px solid #1c2333;
+  margin: 0.6em 0;
+}
+
+/* ---- Progress bar & controls ---- */
+
+.reveal .progress span {
+  background: #39bae6;
+}
+
+.reveal .controls {
+  color: #39bae6;
+}
+
+.reveal .slide-number {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.5em;
+  color: #454d5e;
+  background: transparent;
+}
