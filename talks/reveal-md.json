@@ -1,0 +1,16 @@
+{
+  "theme": "night",
+  "highlightTheme": "monokai",
+  "template": ".reveal/reveal-template.html",
+  "css": [".reveal/custom.css"],
+  "scripts": [
+    "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js",
+    ".reveal/mermaid-init.js"
+  ],
+  "revealOptions": {
+    "transition": "slide",
+    "width": 1280,
+    "height": 720,
+    "margin": 0.04
+  }
+}
