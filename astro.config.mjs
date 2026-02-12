@@ -6,7 +6,7 @@ import { defineConfig } from "astro/config";
 
 // https://astro.build/config
 export default defineConfig({
-  site: "https://blog.kaya.sk",
+  site: "https://kaya.sk",
   integrations: [mdx(), sitemap()],
   markdown: {
     shikiConfig: {
