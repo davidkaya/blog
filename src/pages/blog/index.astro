@@ -9,6 +9,8 @@ const posts = (await getCollection("blog")).sort(
   (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
 const postCount = posts.length;
+
+const allTags = [...new Set(posts.flatMap((p) => p.data.tags))].sort();
 ---
 
 <BaseLayout title={`All Posts — ${SITE_TITLE}`} description="All blog posts">
@@ -18,16 +20,44 @@ const postCount = posts.length;
         <span class="prompt">$</span> ls ./posts/ <span class="muted">| wc -l</span>
       </div>
       <div>
-        <span class="highlight">{postCount}</span>
+        <span class="highlight" id="match-count">{postCount}</span>
       </div>
-      <div style="margin-top: 0.5rem">
-        <span class="prompt">$</span> ls ./posts/<span class="cursor"></span>
+      <div class="grep-line" style="margin-top: 0.5rem">
+        <span class="prompt">$</span>
+        <span class="grep-cmd">grep</span>
+        <span class="grep-flag" id="tag-flag" style="display: none"></span>
+        <span class="grep-input-wrap">
+          "<input
+            type="text"
+            id="search-input"
+            class="grep-input"
+            placeholder="..."
+            autocomplete="off"
+            spellcheck="false"
+          />"
+        </span>
+        <span class="muted">./posts/*</span><span class="cursor"></span>
       </div>
     </div>
   </TerminalWindow>
 
-  <div class="posts">
-    {posts.map((post) => <PostCard post={post} />)}
+  <div class="tag-bar" id="tag-bar">
+    <span class="tag-label">--tag=</span>
+    {allTags.map((tag) => (
+      <button class="tag-btn" data-tag={tag}>{tag}</button>
+    ))}
+  </div>
+
+  <div class="posts" id="posts-list">
+    {posts.map((post) => (
+      <div class="post-item" data-tags={post.data.tags.join(",").toLowerCase()} data-title={post.data.title.toLowerCase()} data-desc={post.data.description.toLowerCase()}>
+        <PostCard post={post} />
+      </div>
+    ))}
+  </div>
+
+  <div class="no-results" id="no-results" style="display: none">
+    <span class="prompt">&gt;</span> No matches. Try a different query.
   </div>
 </BaseLayout>
 
@@ -38,4 +68,157 @@ const postCount = posts.length;
     flex-direction: column;
     gap: 0.6rem;
   }
+  .post-item {
+    transition: opacity 0.15s ease;
+  }
+  .post-item.hidden {
+    display: none;
+  }
+
+  .grep-line {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+  }
+  .grep-cmd {
+    color: var(--accent-green);
+  }
+  .grep-flag {
+    color: var(--accent-yellow);
+  }
+  .grep-input-wrap {
+    color: var(--accent-cyan);
+    display: inline-flex;
+    align-items: center;
+  }
+  .grep-input {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--accent-cyan);
+    font-family: inherit;
+    font-size: inherit;
+    width: 14ch;
+    padding: 0;
+    caret-color: var(--accent-cyan);
+  }
+  .grep-input::placeholder {
+    color: var(--text-faint);
+  }
+
+  .tag-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 1rem;
+    align-items: center;
+  }
+  .tag-label {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--text-muted);
+  }
+  .tag-btn {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.05em;
+    padding: 0.2rem 0.55rem;
+    border-radius: 2px;
+    border: 1px solid var(--tag-border);
+    color: var(--accent-yellow);
+    background: var(--tag-bg);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .tag-btn:hover {
+    border-color: var(--accent-yellow);
+    background: rgba(230, 180, 80, 0.1);
+  }
+  .tag-btn.active {
+    border-color: var(--accent-cyan);
+    color: var(--accent-cyan);
+    background: rgba(57, 186, 230, 0.1);
+  }
+
+  .no-results {
+    margin-top: 1.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    padding: 1rem;
+    border: 1px dashed var(--border);
+    border-radius: 0.25rem;
+  }
 </style>
+
+<script>
+  const searchInput = document.getElementById("search-input") as HTMLInputElement;
+  const tagFlag = document.getElementById("tag-flag")!;
+  const matchCount = document.getElementById("match-count")!;
+  const postsList = document.getElementById("posts-list")!;
+  const noResults = document.getElementById("no-results")!;
+  const tagButtons = document.querySelectorAll<HTMLButtonElement>(".tag-btn");
+  const items = document.querySelectorAll<HTMLElement>(".post-item");
+
+  let activeTag = "";
+
+  function filterPosts() {
+    const query = searchInput.value.toLowerCase().trim();
+    let visible = 0;
+
+    items.forEach((item) => {
+      const title = item.dataset.title || "";
+      const desc = item.dataset.desc || "";
+      const tags = item.dataset.tags || "";
+
+      const matchesSearch = !query || title.includes(query) || desc.includes(query) || tags.includes(query);
+      const matchesTag = !activeTag || tags.split(",").includes(activeTag.toLowerCase());
+
+      if (matchesSearch && matchesTag) {
+        item.classList.remove("hidden");
+        visible++;
+      } else {
+        item.classList.add("hidden");
+      }
+    });
+
+    matchCount.textContent = String(visible);
+    noResults.style.display = visible === 0 ? "block" : "none";
+    postsList.style.display = visible === 0 ? "none" : "flex";
+  }
+
+  searchInput.addEventListener("input", filterPosts);
+
+  tagButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const tag = btn.dataset.tag || "";
+      if (activeTag === tag) {
+        activeTag = "";
+        btn.classList.remove("active");
+        tagFlag.style.display = "none";
+      } else {
+        activeTag = tag;
+        tagButtons.forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        tagFlag.textContent = `--tag=${tag}`;
+        tagFlag.style.display = "inline";
+      }
+      filterPosts();
+    });
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      searchInput.value = "";
+      activeTag = "";
+      tagButtons.forEach((b) => b.classList.remove("active"));
+      tagFlag.style.display = "none";
+      filterPosts();
+    }
+    if (e.key === "/" && document.activeElement !== searchInput) {
+      e.preventDefault();
+      searchInput.focus();
+    }
+  });
+</script>
