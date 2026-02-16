@@ -96,10 +96,11 @@ if (existsSync(TMP_DIR)) rmSync(TMP_DIR, { recursive: true });
 if (existsSync(OUT_DIR)) rmSync(OUT_DIR, { recursive: true });
 mkdirSync(OUT_DIR, { recursive: true });
 
-// Build each talk with reveal-md
+// Build each talk with reveal-md (run from talks/ so reveal-md.json is found)
 for (const talk of talks) {
-  const dest = join(TMP_DIR, talk.slug);
-  run(`bunx reveal-md "${talk.src}" --static "${dest}"`);
+  const dest = join("..", TMP_DIR, talk.slug);
+  const src = talk.src.replace(/^talks[\\/]/, "");
+  run(`cd talks && bunx reveal-md "${src}" --static "${dest}"`);
 }
 
 // Copy shared assets from first talk to root
