@@ -22,7 +22,7 @@
 
 .reveal {
   font-family: "JetBrains Mono", "Fira Code", "Cascadia Code", monospace;
-  font-size: 22px;
+  font-size: 18px;
   color: #b3b1ad;
 }
 
@@ -59,19 +59,19 @@ body {
 }
 
 .reveal h1 {
-  font-size: 2em;
+  font-size: 1.8em;
   color: #39bae6;
   text-shadow: 0 0 40px rgba(57, 186, 230, 0.15);
 }
 
 .reveal h2 {
-  font-size: 1.4em;
+  font-size: 1.3em;
   margin-bottom: 0.3em;
   color: #39bae6;
 }
 
 .reveal h3 {
-  font-size: 1.1em;
+  font-size: 1em;
   margin: 0.3em 0;
   color: #e6b450;
 }
@@ -149,16 +149,20 @@ body {
 /* ---- Tables ---- */
 
 .reveal table {
-  font-size: 0.6em;
-  margin: 0.3em auto;
+  font-size: 0.55em;
+  margin: 0.3em 0;
   border-collapse: collapse;
+  width: 100%;
+  table-layout: auto;
 }
 
 .reveal table th,
 .reveal table td {
-  padding: 0.25em 0.6em;
+  padding: 0.3em 0.6em;
   border: 1px solid #1c2333;
   text-align: left;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .reveal table th {
@@ -168,6 +172,7 @@ body {
   text-transform: uppercase;
   font-size: 0.9em;
   letter-spacing: 0.04em;
+  white-space: nowrap;
 }
 
 .reveal table td {
