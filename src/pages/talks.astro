@@ -5,6 +5,8 @@ import { SITE_TITLE } from "../consts";
 import slidesManifest from "../../public/slides/talks.json";
 
 const slides = slidesManifest;
+const standardTalks = slides.filter((s) => s.category === "standard");
+const lightningTalks = slides.filter((s) => s.category === "lightning");
 
 const speakingLog = [
   { date: "2021-03", title: "Building Serverless applications using Azure Functions", venue: "Žijeme IT", url: "http://www.zijemeit.cz/workshop?programId=7" },
@@ -33,7 +35,8 @@ const totalCount = slides.length + speakingLog.length;
       <div><span class="prompt">$</span> tree ./talks/</div>
       <div class="tree-output">
         <div>./talks/</div>
-        <div>├── slides/<span class="muted">     ({slides.length} decks)</span></div>
+        <div>├── standard/<span class="muted">    ({standardTalks.length} decks, 30–45 min)</span></div>
+        <div>├── lightning/<span class="muted">   ({lightningTalks.length} decks, 5–15 min)</span></div>
         <div>└── history.log<span class="muted">  ({speakingLog.length} appearances)</span></div>
       </div>
       <div class="find-line" style="margin-top: 0.5rem">
@@ -67,14 +70,30 @@ const totalCount = slides.length + speakingLog.length;
     ))}
   </div>
 
-  <!-- Slide Decks -->
-  <div class="section" id="slides-section">
+  <!-- Standard Talks -->
+  <div class="section" id="standard-section">
     <div class="section-header">
-      <span class="icon">📂</span> ./slides/
+      <span class="icon">📂</span> ./standard/<span class="muted"> — full-length talks (30–45 min)</span>
     </div>
-    <div class="slides-grid" id="slides-grid">
-      {slides.map((slide) => (
-        <a href={slide.url} class="slide-card slide-item" data-title={slide.title.toLowerCase()} data-tag={slide.tag.toLowerCase()}>
+    <div class="slides-grid">
+      {standardTalks.map((slide) => (
+        <a href={slide.url} class="slide-card slide-item" data-title={slide.title.toLowerCase()} data-tag={slide.tag.toLowerCase()} data-category="standard">
+          <span class="slide-tag">{slide.tag}</span>
+          <span class="slide-title">{slide.title}</span>
+          <span class="slide-action">▶ View Slides</span>
+        </a>
+      ))}
+    </div>
+  </div>
+
+  <!-- Lightning Talks -->
+  <div class="section" id="lightning-section">
+    <div class="section-header">
+      <span class="icon">⚡</span> ./lightning/<span class="muted"> — short talks (5–15 min)</span>
+    </div>
+    <div class="slides-grid">
+      {lightningTalks.map((slide) => (
+        <a href={slide.url} class="slide-card slide-item" data-title={slide.title.toLowerCase()} data-tag={slide.tag.toLowerCase()} data-category="lightning">
           <span class="slide-tag">{slide.tag}</span>
           <span class="slide-title">{slide.title}</span>
           <span class="slide-action">▶ View Slides</span>
@@ -316,7 +335,8 @@ const totalCount = slides.length + speakingLog.length;
   const yearFlag = document.getElementById("year-flag")!;
   const matchCount = document.getElementById("talks-match-count")!;
   const noResults = document.getElementById("talks-no-results")!;
-  const slidesSection = document.getElementById("slides-section")!;
+  const standardSection = document.getElementById("standard-section")!;
+  const lightningSection = document.getElementById("lightning-section")!;
   const logSection = document.getElementById("log-section")!;
   const yearButtons = document.querySelectorAll<HTMLButtonElement>(".year-btn");
   const slideItems = document.querySelectorAll<HTMLElement>(".slide-item");
@@ -329,15 +349,18 @@ const totalCount = slides.length + speakingLog.length;
     let visible = 0;
 
     // Filter slides — they have no year, so hide all when a year is active
-    let slidesVisible = 0;
+    let standardVisible = 0;
+    let lightningVisible = 0;
     slideItems.forEach((item) => {
       const title = item.dataset.title || "";
       const tag = item.dataset.tag || "";
+      const category = item.dataset.category || "";
       const matchesSearch = !query || title.includes(query) || tag.includes(query);
 
       if (matchesSearch && !activeYear) {
         item.classList.remove("hidden");
-        slidesVisible++;
+        if (category === "standard") standardVisible++;
+        else lightningVisible++;
       } else {
         item.classList.add("hidden");
       }
@@ -360,8 +383,9 @@ const totalCount = slides.length + speakingLog.length;
       }
     });
 
-    visible = slidesVisible + logVisible;
-    slidesSection.style.display = slidesVisible > 0 ? "block" : "none";
+    visible = standardVisible + lightningVisible + logVisible;
+    standardSection.style.display = standardVisible > 0 ? "block" : "none";
+    lightningSection.style.display = lightningVisible > 0 ? "block" : "none";
     logSection.style.display = logVisible > 0 ? "block" : "none";
     matchCount.textContent = String(visible);
     noResults.style.display = visible === 0 ? "block" : "none";
