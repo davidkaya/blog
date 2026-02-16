@@ -81,9 +81,14 @@ const talks = presentations.map((src) => {
   const meta = existsSync(metaPath)
     ? JSON.parse(readFileSync(metaPath, "utf-8"))
     : {};
+  // Extract category from path: talks/<category>/<Talk Name>/presentation.md
+  const relPath = src.replace(/\\/g, "/");
+  const parts = relPath.split("/");
+  const category = parts.length >= 3 ? parts[1] : "other";
   return {
     slug: meta.slug || slugify(title),
     tag: meta.tag || "",
+    category,
     title,
     src,
   };
@@ -135,6 +140,7 @@ const manifest = talks.map((t) => ({
   title: t.title,
   slug: t.slug,
   tag: t.tag,
+  category: t.category,
   url: `/slides/${t.slug}/`,
 }));
 writeFileSync(join(OUT_DIR, "talks.json"), JSON.stringify(manifest, null, 2));
