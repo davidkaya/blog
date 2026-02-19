@@ -1,0 +1,145 @@
+<!-- Konami code easter egg: ↑↑↓↓←→←→BA -->
+<div id="easter-egg-overlay" class="ee-overlay">
+  <div class="ee-content">
+    <div class="ee-access">ACCESS GRANTED</div>
+    <div class="ee-terminal">
+      <div><span class="ee-prompt">root@kaya:~#</span> cat /etc/motd</div>
+      <pre class="ee-ascii">
+  ██╗  ██╗ █████╗ ██╗   ██╗ █████╗
+  ██║ ██╔╝██╔══██╗╚██╗ ██╔╝██╔══██╗
+  █████╔╝ ███████║ ╚████╔╝ ███████║
+  ██╔═██╗ ██╔══██║  ╚██╔╝  ██╔══██║
+  ██║  ██╗██║  ██║   ██║   ██║  ██║
+  ╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝</pre>
+      <div class="ee-line"><span class="ee-prompt">root@kaya:~#</span> echo $WISDOM</div>
+      <div class="ee-wisdom"></div>
+      <div class="ee-line"><span class="ee-prompt">root@kaya:~#</span> <span class="ee-cursor">█</span></div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .ee-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(0, 0, 0, 0.95);
+    align-items: center;
+    justify-content: center;
+    animation: ee-fadein 0.3s ease;
+  }
+  .ee-overlay.active {
+    display: flex;
+  }
+  .ee-content {
+    text-align: center;
+    font-family: var(--font-mono);
+  }
+  .ee-access {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #23d18b;
+    text-shadow: 0 0 30px rgba(35, 209, 139, 0.5), 0 0 60px rgba(35, 209, 139, 0.2);
+    animation: ee-glitch 0.5s ease-out, ee-pulse 1.5s ease-in-out infinite;
+    margin-bottom: 2rem;
+  }
+  .ee-terminal {
+    text-align: left;
+    font-size: 0.85rem;
+    color: #b3b1ad;
+    line-height: 1.6;
+    opacity: 0;
+    animation: ee-typein 0.3s ease 0.6s forwards;
+  }
+  .ee-prompt {
+    color: #f14c4c;
+    font-weight: 600;
+  }
+  .ee-ascii {
+    color: #39bae6;
+    font-size: 0.55rem;
+    line-height: 1.2;
+    margin: 0.5rem 0;
+    text-shadow: 0 0 10px rgba(57, 186, 230, 0.3);
+  }
+  .ee-wisdom {
+    color: #e6b450;
+    min-height: 1.4em;
+    margin-bottom: 0.3rem;
+  }
+  .ee-cursor {
+    animation: ee-blink 0.7s step-end infinite;
+    color: #23d18b;
+  }
+  .ee-line {
+    margin-top: 0.2rem;
+  }
+
+  @keyframes ee-fadein {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes ee-glitch {
+    0% { transform: translate(0); opacity: 0; }
+    20% { transform: translate(-4px, 2px); opacity: 1; }
+    40% { transform: translate(4px, -2px); }
+    60% { transform: translate(-2px, 1px); }
+    80% { transform: translate(2px, -1px); }
+    100% { transform: translate(0); }
+  }
+  @keyframes ee-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
+  }
+  @keyframes ee-typein {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes ee-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+</style>
+
+<script>
+  const KONAMI = ["ArrowUp","ArrowUp","ArrowDown","ArrowDown","ArrowLeft","ArrowRight","ArrowLeft","ArrowRight","b","a"];
+  const WISDOMS = [
+    '"There are only two hard things in CS: cache invalidation, naming things, and off-by-one errors."',
+    '"It works on my machine." — Every developer, since the beginning of time.',
+    '"sudo rm -rf / —no-preserve-root" — Famous last words.',
+    '"The best code is no code at all." — Jeff Atwood',
+    '"99 little bugs in the code, 99 bugs in the code. Take one down, patch it around… 127 little bugs in the code."',
+    '"There is no cloud. It\'s just someone else\'s computer."',
+  ];
+
+  let pos = 0;
+  const overlay = document.getElementById("easter-egg-overlay")!;
+  const wisdomEl = overlay.querySelector(".ee-wisdom")!;
+
+  document.addEventListener("keydown", (e) => {
+    if (overlay.classList.contains("active")) {
+      if (e.key === "Escape" || e.key === "Enter" || e.key === " ") {
+        overlay.classList.remove("active");
+        pos = 0;
+      }
+      return;
+    }
+
+    if (e.key === KONAMI[pos]) {
+      pos++;
+      if (pos === KONAMI.length) {
+        wisdomEl.textContent = WISDOMS[Math.floor(Math.random() * WISDOMS.length)];
+        overlay.classList.add("active");
+        pos = 0;
+      }
+    } else {
+      pos = e.key === KONAMI[0] ? 1 : 0;
+    }
+  });
+
+  overlay.addEventListener("click", () => {
+    overlay.classList.remove("active");
+    pos = 0;
+  });
+</script>
