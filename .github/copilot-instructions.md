@@ -284,7 +284,7 @@ prose styling.
   scoping (e.g., `:global([data-theme="light"]) .my-class`).
 - **Slides are gitignored** — `public/slides/` is generated during build from `talks/` source.
   Never commit built slides. Always run `bun run build` to regenerate.
-- **Site URL** is `https://blog.kaya.sk` (configured in `astro.config.mjs`).
+- **Site URL** is `https://kaya.sk` (configured in `astro.config.mjs`).
 - **Dual licensing** — code is GPLv3 (`LICENSE`), content (blog posts + presentations) is CC BY 4.0
   (`LICENSE-CONTENT`). Do not mix licenses or add license headers to individual files.
 

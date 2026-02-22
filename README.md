@@ -3,7 +3,7 @@
 Personal blog and portfolio site built with [Astro](https://astro.build). Features blog posts, talk
 slides (reveal.js), and a terminal-themed design with dark/light mode support.
 
-🔗 **Live at [blog.kaya.sk](https://blog.kaya.sk)**
+🔗 **Live at [kaya.sk](https://kaya.sk)**
 
 ## Features
 
