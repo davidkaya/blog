@@ -93,8 +93,9 @@ Copilot CLI has different interaction modes you can cycle through with `Shift+Ta
 
 - **Interactive mode** — the default, step-by-step collaboration where it asks before acting
 - **Plan mode** — it creates a detailed implementation plan before writing any code
+- **Autopilot mode** — the agent keeps working autonomously until the task is complete
 
-Plan mode is particularly useful for larger tasks. You describe what you want, it outlines the approach, and you can review and adjust before any files are touched.
+Plan mode is great for larger tasks where you want to review the approach before any files are touched. Autopilot mode is for when you trust the agent and just want it to get things done — it minimizes the back-and-forth and powers through until it's finished.
 
 ## Things to Keep in Mind
 
