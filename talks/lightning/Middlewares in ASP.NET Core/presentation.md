@@ -273,17 +273,17 @@ not-so-subtle) bugs.
 flowchart TB
     subgraph Platform["Platform & transport"]
         direction LR
-        A["1. Exception<br>Handler"] --> B["2. HSTS"] --> C["3. HTTPS<br>Redirection"] --> D["4. Static Files"]
+        A["Exception<br>Handler"] --> B["HSTS"] --> C["HTTPS<br>Redirection"] --> D["Static Files"]
     end
 
     subgraph Pipeline["Request pipeline"]
         direction LR
-        E["5. Routing"] --> F["6. CORS"] --> G["7. Authentication"] --> H["8. Authorization"]
+        E["Routing"] --> F["CORS"] --> G["Authentication"] --> H["Authorization"]
     end
 
     subgraph App["Application behavior"]
         direction LR
-        I["9. Rate<br>Limiter"] --> J["10. Response<br>Caching"] --> K["11. Custom<br>middlewares"] --> L["12. MapControllers<br>or MapEndpoints"]
+        I["Rate<br>Limiter"] --> J["Response<br>Caching"] --> K["Custom<br>Middleware"] --> L["Controllers<br>or Endpoints"]
     end
 
     D --> E
