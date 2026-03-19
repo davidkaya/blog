@@ -113,18 +113,45 @@
       const mermaidOptions = extend({ startOnLoad: false }, {{{mermaidOptionsStr}}});
       mermaid.startOnLoad = false;
       mermaid.initialize(mermaidOptions);
-      const cb = function (event) {
-        mermaid.init(
-          mermaidOptions,
-          '.stack.present > .present pre code.mermaid, .stack.present > .present pre code.language-mermaid'
-        );
-        mermaid.init(
-          mermaidOptions,
-          '.slides > .present:not(.stack) pre code.mermaid, .slides > .present:not(.stack) pre code.language-mermaid'
-        );
-      }
-      Reveal.addEventListener('ready', cb);
-      Reveal.addEventListener('slidetransitionend', cb);
+      const mermaidCodeSelector = [
+        '.stack.present > .present pre code.mermaid',
+        '.stack.present > .present pre code.language-mermaid',
+        '.slides > .present:not(.stack) pre code.mermaid',
+        '.slides > .present:not(.stack) pre code.language-mermaid'
+      ].join(', ');
+
+      const renderMermaidBlocks = async function () {
+        const codeBlocks = Reveal.getRevealElement().querySelectorAll(mermaidCodeSelector);
+        const nodes = [];
+
+        for (const codeBlock of Array.from(codeBlocks)) {
+          const pre = codeBlock.closest('pre');
+          if (!pre || pre.dataset.mermaidConverted === 'true') {
+            continue;
+          }
+
+          const container = document.createElement('div');
+          container.className = 'mermaid';
+          container.textContent = codeBlock.textContent;
+
+          pre.dataset.mermaidConverted = 'true';
+          pre.replaceWith(container);
+          nodes.push(container);
+        }
+
+        if (nodes.length > 0) {
+          await mermaid.run({ nodes });
+        }
+      };
+
+      const queueMermaidRender = function () {
+        requestAnimationFrame(() => {
+          renderMermaidBlocks().catch((error) => console.error('Mermaid rendering failed', error));
+        });
+      };
+
+      Reveal.addEventListener('ready', queueMermaidRender);
+      Reveal.addEventListener('slidetransitionend', queueMermaidRender);
     </script>
     {{/mermaidOptionsStr}}
   </body>
