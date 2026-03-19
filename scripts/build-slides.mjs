@@ -116,6 +116,13 @@ for (const dir of SHARED_DIRS) {
     cpSync(src, join(OUT_DIR, dir), { recursive: true });
   }
 }
+
+// reveal-md's static export references /mermaid/dist/mermaid.min.js but does not copy Mermaid.
+const mermaidDist = join("node_modules", "mermaid", "dist");
+if (existsSync(mermaidDist)) {
+  cpSync(mermaidDist, join(OUT_DIR, "mermaid", "dist"), { recursive: true });
+}
+
 if (existsSync(join(first, "favicon.ico"))) {
   cpSync(join(first, "favicon.ico"), join(OUT_DIR, "favicon.ico"));
 }
