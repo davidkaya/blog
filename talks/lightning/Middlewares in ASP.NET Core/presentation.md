@@ -270,20 +270,20 @@ not-so-subtle) bugs.
 ### Recommended Order
 
 ```mermaid
-flowchart TB
+flowchart LR
     subgraph Platform["Platform & transport"]
-        direction LR
-        A["Exception<br>Handler"] --> B["HSTS"] --> C["HTTPS<br>Redirection"] --> D["Static Files"]
+        direction TB
+        A["Exception<br>Handler"] --> B["HSTS"] --> C["HTTPS<br>Redirect"] --> D["Static Files"]
     end
 
     subgraph Pipeline["Request pipeline"]
-        direction LR
+        direction TB
         E["Routing"] --> F["CORS"] --> G["Authentication"] --> H["Authorization"]
     end
 
     subgraph App["Application behavior"]
-        direction LR
-        I["Rate<br>Limiter"] --> J["Response<br>Caching"] --> K["Custom<br>Middleware"] --> L["Controllers<br>or Endpoints"]
+        direction TB
+        I["Rate<br>Limiter"] --> J["Response<br>Cache"] --> K["Custom<br>Middleware"] --> L["Controllers /<br>Endpoints"]
     end
 
     D --> E
@@ -418,10 +418,9 @@ app.MapControllers();
 ### Decision Guide
 
 ```mermaid
-flowchart TD
-    Q{"Do you need a completely<br>separate pipeline?"}
-    Q -- Yes --> M["Use Map<br>or MapWhen"]
-    Q -- No --> U["Use<br>UseWhen"]
+flowchart LR
+    Q["Need a separate<br>pipeline?"] -->|Yes| M["Map or<br>MapWhen"]
+    Q -->|No| U["UseWhen"]
 ```
 
 ---
