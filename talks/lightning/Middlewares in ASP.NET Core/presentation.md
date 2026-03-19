@@ -37,7 +37,7 @@ title: Middlewares in ASP.NET Core
 Think of middleware like **layers of an onion** — the request travels inward through each layer,
 hits the endpoint, and the response travels back outward through the same layers in reverse:
 
-<div class="mermaid">
+```mermaid
 flowchart LR
     Req([Request]) --> EH["Exception<br>Handler"]
     EH --> Https["HTTPS<br>Redirection"]
@@ -49,7 +49,7 @@ flowchart LR
     AuthN -.-> Https
     Https -.-> EH
     EH -. "final response" .-> Res([Response])
-</div>
+```
 
 ---
 
@@ -269,7 +269,7 @@ not-so-subtle) bugs.
 
 ### Recommended Order
 
-<div class="mermaid">
+```mermaid
 flowchart TB
     subgraph Platform["Platform & transport"]
         direction LR
@@ -288,7 +288,7 @@ flowchart TB
 
     D --> E
     H --> I
-</div>
+```
 
 ---
 
@@ -417,12 +417,12 @@ app.MapControllers();
 
 ### Decision Guide
 
-<div class="mermaid">
+```mermaid
 flowchart TD
     Q{"Do you need a completely<br>separate pipeline?"}
     Q -- Yes --> M["Use Map<br>or MapWhen"]
     Q -- No --> U["Use<br>UseWhen"]
-</div>
+```
 
 ---
 

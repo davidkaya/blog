@@ -3,10 +3,9 @@
   "highlightTheme": "monokai",
   "template": ".reveal/reveal-template.html",
   "css": [".reveal/custom.css"],
-  "scripts": [
-    "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js",
-    ".reveal/mermaid-init.js"
-  ],
+  "mermaid": {
+    "theme": "dark"
+  },
   "revealOptions": {
     "transition": "fade",
     "width": 1280,

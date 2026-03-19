@@ -55,12 +55,12 @@ Instead of writing every line of code, engineers:
 
 The way we build software has been transforming rapidly:
 
-<div class="mermaid">
+```mermaid
 flowchart LR
     A["🖥️ Traditional<br>Coding"] --> B["🤖 AI-Assisted<br>Coding"]
     B --> C["🎵 Vibe<br>Coding"]
     C --> D["⚙️ Agentic<br>Engineering"]
-</div>
+```
 
 ### Key Milestones
 
@@ -101,11 +101,11 @@ more capable than single-shot prompting.
 
 The agent **critiques, evaluates, and iteratively improves** its own output.
 
-<div class="mermaid">
+```mermaid
 flowchart LR
     A[Generate] --> B[Evaluate] --> C[Revise]
     C -. "loop until<br>quality met" .-> A
-</div>
+```
 
 - Code generators that review and debug their own code
 - Even simpler models, when used with reflection, **outperform advanced models** used without it
@@ -149,11 +149,11 @@ their efforts.
 
 At their core, AI agents follow a **Perceive → Plan → Act → Reflect** loop:
 
-<div class="mermaid">
+```mermaid
 flowchart LR
     P["🔍 Perceive"] --> PL["📋 Plan"] --> A["⚡ Act"] --> R["🔁 Reflect"]
     R -. loop .-> P
-</div>
+```
 
 ---
 
@@ -279,10 +279,10 @@ Two open protocols are standardizing how agents connect to the world and to each
 
 Introduced by **Anthropic** in November 2024.
 
-<div class="mermaid">
+```mermaid
 flowchart LR
     C["🤖 AI Client<br>(Claude, etc)"] <-- "JSON-RPC 2.0" --> S["🔧 MCP Server<br>(Tools/Data)"]
-</div>
+```
 
 - **Resources** — structured data (documents, DB rows)
 - **Tools** — executable functions (APIs, scripts)
@@ -298,10 +298,10 @@ flowchart LR
 
 Introduced by **Google** in 2025.
 
-<div class="mermaid">
+```mermaid
 flowchart LR
     A["🤖 Agent A<br>(Any vendor)"] <-- "A2A Protocol" --> B["🤖 Agent B<br>(Any vendor)"]
-</div>
+```
 
 - **Agent Cards** — JSON capability manifests at well-known endpoints
 - **Tasks** — formal lifecycle: submitted → working → completed/failed
@@ -430,7 +430,7 @@ The role of a software developer is **not disappearing** — it's **evolving**:
 
 ### From Code Writer → Orchestrator
 
-<div class="mermaid">
+```mermaid
 flowchart LR
     subgraph Before
         B1["Developer<br>writes code, runs tests,<br>debugs, deploys"]
@@ -439,7 +439,7 @@ flowchart LR
         N1["Developer<br>defines goals, designs workflows,<br>reviews output, validates quality"]
     end
     Before --> Now
-</div>
+```
 
 ---
 
@@ -468,13 +468,13 @@ flowchart LR
 
 A .NET console application demonstrating the **Multi-Agent Collaboration** pattern:
 
-<div class="mermaid">
+```mermaid
 flowchart LR
     I["📝 User Input"] --> R["📚 Researcher"]
     R --> W1["✍️ Writer"]
     W1 --> Rev["🔍 Reviewer"]
     Rev --> W2["🔄 Writer revises"]
-</div>
+```
 
 ---
 
