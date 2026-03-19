@@ -100,7 +100,9 @@
     <script>
       Reveal.initialize(options);
       Reveal.addEventListener('ready', function (event) {
-        const blocks = Reveal.getRevealElement().querySelectorAll('pre code:not(.mermaid)');
+        const blocks = Reveal.getRevealElement().querySelectorAll(
+          'pre code:not(.mermaid):not(.language-mermaid)'
+        );
         const hlp = Reveal.getPlugin('highlight');
         blocks.forEach(hlp.highlightBlock);
       });
@@ -112,8 +114,14 @@
       mermaid.startOnLoad = false;
       mermaid.initialize(mermaidOptions);
       const cb = function (event) {
-        mermaid.init(mermaidOptions, '.stack.present > .present pre code.mermaid');
-        mermaid.init(mermaidOptions, '.slides > .present:not(.stack) pre code.mermaid');
+        mermaid.init(
+          mermaidOptions,
+          '.stack.present > .present pre code.mermaid, .stack.present > .present pre code.language-mermaid'
+        );
+        mermaid.init(
+          mermaidOptions,
+          '.slides > .present:not(.stack) pre code.mermaid, .slides > .present:not(.stack) pre code.language-mermaid'
+        );
       }
       Reveal.addEventListener('ready', cb);
       Reveal.addEventListener('slidetransitionend', cb);
