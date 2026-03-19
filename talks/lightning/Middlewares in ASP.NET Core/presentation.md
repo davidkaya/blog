@@ -38,19 +38,17 @@ Think of middleware like **layers of an onion** — the request travels inward t
 hits the endpoint, and the response travels back outward through the same layers in reverse:
 
 <div class="mermaid">
-block-beta
-    columns 1
-    block:outer["Exception Handler"]
-        block:redir["HTTPS Redirection"]
-            block:authn["Authentication"]
-                block:authz["Authorization"]
-                    endpoint["Your Endpoint"]
-                end
-            end
-        end
-    end
-    Request --> outer
-    outer --> Response
+flowchart LR
+    Req([Request]) --> EH["Exception<br>Handler"]
+    EH --> Https["HTTPS<br>Redirection"]
+    Https --> AuthN["Authentication"]
+    AuthN --> AuthZ["Authorization"]
+    AuthZ --> Endpoint["Your<br>Endpoint"]
+    Endpoint -.-> AuthZ
+    AuthZ -.-> AuthN
+    AuthN -.-> Https
+    Https -.-> EH
+    EH -. "final response" .-> Res([Response])
 </div>
 
 ---
@@ -272,18 +270,24 @@ not-so-subtle) bugs.
 ### Recommended Order
 
 <div class="mermaid">
-flowchart TD
-    A["1. UseExceptionHandler"] --> B["2. UseHsts"]
-    B --> C["3. UseHttpsRedirection"]
-    C --> D["4. UseStaticFiles"]
-    D --> E["5. UseRouting"]
-    E --> F["6. UseCors"]
-    F --> G["7. UseAuthentication"]
-    G --> H["8. UseAuthorization"]
-    H --> I["9. UseRateLimiter"]
-    I --> J["10. UseResponseCaching"]
-    J --> K["11. Custom middlewares"]
-    K --> L["12. MapControllers / MapEndpoints"]
+flowchart TB
+    subgraph Platform["Platform & transport"]
+        direction LR
+        A["1. Exception<br>Handler"] --> B["2. HSTS"] --> C["3. HTTPS<br>Redirection"] --> D["4. Static Files"]
+    end
+
+    subgraph Pipeline["Request pipeline"]
+        direction LR
+        E["5. Routing"] --> F["6. CORS"] --> G["7. Authentication"] --> H["8. Authorization"]
+    end
+
+    subgraph App["Application behavior"]
+        direction LR
+        I["9. Rate<br>Limiter"] --> J["10. Response<br>Caching"] --> K["11. Custom<br>middlewares"] --> L["12. MapControllers<br>or MapEndpoints"]
+    end
+
+    D --> E
+    H --> I
 </div>
 
 ---
@@ -415,9 +419,9 @@ app.MapControllers();
 
 <div class="mermaid">
 flowchart TD
-    Q{"Do you need a completely\nseparate pipeline?"}
-    Q -- Yes --> M["Use Map() or MapWhen()"]
-    Q -- No --> U["Use UseWhen()"]
+    Q{"Do you need a completely<br>separate pipeline?"}
+    Q -- Yes --> M["Use Map<br>or MapWhen"]
+    Q -- No --> U["Use<br>UseWhen"]
 </div>
 
 ---
