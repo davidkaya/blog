@@ -6,7 +6,7 @@ title: Agentic Engineering
 
 ### Building software with agents, not just prompts
 
-40-45 minutes
+40 minutes
 
 Note:
 Opening framing: this is not a "how to prompt better" talk.
@@ -46,19 +46,23 @@ make progress safely and observably.
 
 Coding agents can already:
 
-- inspect repositories
+- inspect repositories and docs
 - edit multiple files
 - run builds and tests
 - open branches and pull requests
-- use issue trackers, docs, telemetry, and browsers
+- use issue trackers, browsers, telemetry, and MCP servers
 - continue work in local, IDE, CLI, and cloud environments
 
 The bottleneck is shifting from **model capability** to **engineering discipline**.
 
+The 2026 pattern is clear: agents are becoming workers, MCP is the tool/context
+connector, A2A is emerging for agent-to-agent interoperability, and reliable
+systems emphasize context, verification, traces, and sandboxes over agent swarms.
+
 Note:
 Reference the public product trend without turning this into vendor marketing:
-Claude Code, Copilot cloud agent, Codex CLI/Web, Cursor-style agent modes,
-OpenAI Agents SDK, LangGraph, AutoGen, CrewAI, smolagents, etc.
+Claude Code, Copilot coding agent, Codex CLI/Web, Cursor-style agent modes,
+OpenAI Agents SDK, LangGraph, AutoGen, CrewAI, smolagents, MCP, and A2A.
 
 ---
 
@@ -81,46 +85,9 @@ operationalizing them.
 
 ---
 
-## Research snapshot: April 2026
+## From assistant to agent
 
-The public landscape has converged around five ideas:
-
-1. coding agents are moving from IDE assistants to local and cloud workers
-2. MCP is becoming the common tool/context connector
-3. A2A is emerging for agent-to-agent interoperability
-4. skills and custom agents are becoming the packaging layer for team knowledge
-5. reliable systems emphasize context, verification, traces, and sandboxes over agent swarms
-
-Note:
-This slide explicitly anchors the talk in the current online research. It avoids
-deep vendor specifics, but names the patterns that are now visible across public
-docs and frameworks.
-
----
-
-## Agenda
-
-1. What changed
-2. From prompting to context engineering
-3. The agentic engineering stack
-4. Workflow patterns that actually work
-5. Quality gates, safety, and observability
-6. How teams should adopt this
-
-Note:
-Set expectations: conceptual, practical, and current as of 2026.
-
----
-
-## Part 1
-
-# What changed
-
----
-
-## Before: AI-assisted coding
-
-The old mental model:
+AI-assisted coding:
 
 ```text
 human writes code
@@ -128,29 +95,11 @@ AI suggests snippets
 human accepts / edits / rejects
 ```
 
-Useful, but local:
-
-- one developer
-- one editor
-- one prompt
-- one file or small change
-
-Note:
-This is Copilot autocomplete / chat-era thinking. Still valuable, but not the
-same thing as agentic work.
-
----
-
-## Now: agentic coding
-
-The new mental model:
+Agentic coding:
 
 ```text
 human defines intent
-agent explores
-agent plans
-agent edits
-agent validates
+agent explores, plans, edits, validates
 human reviews decisions and evidence
 ```
 
@@ -158,25 +107,20 @@ The output is not just code.
 
 It is a **trace of decisions**.
 
-Note:
-Emphasize trace. A trustworthy agentic workflow creates artifacts you can audit:
-plan, changed files, test output, review comments, telemetry checks.
+Working definitions:
 
----
+```text
+workflow = fixed path of model/tool steps
+agent    = model dynamically chooses steps and tools
+runtime  = state, tools, permissions, traces, execution
+```
 
-## A quick vocabulary reset
-
-| Term | Useful definition |
-| --- | --- |
-| LLM call | One model response |
-| Workflow | Fixed path of model/tool steps |
-| Agent | Model dynamically chooses steps and tools |
-| Multi-agent | Multiple specialized agents coordinate |
-| Runtime | Where state, tools, permissions, traces, and execution live |
+Most production systems are hybrids.
 
 Note:
-Anthropic's public framing is useful: workflows are predefined code paths;
-agents dynamically direct their process. Most production systems are hybrids.
+This merges the old "Before" and "Now" slides. Emphasize trace: a trustworthy
+agentic workflow creates artifacts you can audit: plan, changed files, test output,
+review comments, telemetry checks.
 
 ---
 
@@ -197,27 +141,6 @@ that production engineering needs stronger machinery.
 
 ---
 
-## What the market converged on
-
-Across current tools and frameworks, the primitives look familiar:
-
-- **agents** with instructions
-- **tools** with schemas
-- **handoffs** or delegation
-- **guardrails**
-- **sessions / memory**
-- **sandboxed workspaces**
-- **tracing and evals**
-- **human-in-the-loop checkpoints**
-
-Different names, same shape.
-
-Note:
-This matches OpenAI Agents SDK, Claude Code, Copilot cloud agent customization,
-LangGraph, AutoGen, CrewAI, smolagents, LlamaIndex workflows.
-
----
-
 ## The 2026 reality check
 
 Agents are good at:
@@ -235,22 +158,15 @@ Agents still struggle with:
 - hidden business context
 - long-horizon consistency
 - cross-system side effects
-- incomplete feedback loops
 - ambiguous ownership
 
 Note:
-This sets realistic expectations. Agents are a strong engineering multiplier,
-not an excuse to stop engineering.
+This replaces the longer market-convergence and reality-check pair. Agents are a
+strong engineering multiplier, not an excuse to stop engineering.
 
 ---
 
-## Part 2
-
-# Context engineering
-
----
-
-## Prompt engineering was the warm-up
+## Context engineering
 
 Prompt engineering:
 
@@ -272,28 +188,26 @@ This is one of the most important conceptual shifts. Make it memorable.
 
 ---
 
-## Context is a budget
+## The context contract
 
-Every agent run spends context on:
+For every serious agent task, define:
 
-- instructions
-- conversation history
-- files
-- command output
-- search results
-- tool schemas
-- test logs
-- prior decisions
-
-As context fills, quality often drops.
-
-So the question is not "can I add more context?"
-
-It is "what context earns its place?"
+```text
+goal:
+  what outcome matters?
+constraints:
+  what must not change?
+grounding:
+  what sources are authoritative?
+done:
+  what evidence proves completion?
+escalation:
+  when should the agent stop and ask?
+```
 
 Note:
-Claude Code best-practices publicly emphasizes context-window management.
-This is increasingly a core engineering responsibility.
+This is a reusable pattern. It can live in issue templates, agent instructions,
+skills, or custom agent profiles.
 
 ---
 
@@ -305,62 +219,20 @@ Prefer artifacts over chat sludge:
 | --- | --- |
 | product intent | PRD / issue brief |
 | technical target | spec |
-| architecture | design doc / diagrams |
+| architecture | design doc / diagram |
 | implementation | file-level plan |
 | validation | test matrix |
-| rollout | flight / telemetry plan |
 | learning | retrospective / rubric |
 
-Note:
-This is inspired by mature internal pipelines in industry, but keep it generic.
-The point is that the agent should consume explicit artifacts, not infer everything
-from a conversation.
-
----
-
-## Context needs provenance
-
-Agents should distinguish:
-
-- user requirement
-- codebase fact
-- inferred assumption
-- external documentation
-- test result
-- model opinion
-
-Those are not the same kind of truth.
-
-Note:
-This is a good place to mention hallucination reduction without using the word too
-often. Provenance prevents "source laundering" where a guess becomes a requirement.
-
----
-
-## The context contract
-
-For every serious agent task, define:
+Also preserve provenance:
 
 ```text
-goal:
-  what outcome matters?
-
-constraints:
-  what must not change?
-
-grounding:
-  what sources are authoritative?
-
-done:
-  what evidence proves completion?
-
-escalation:
-  when should the agent stop and ask?
+requirement != codebase fact != assumption != model opinion
 ```
 
 Note:
-This is a reusable pattern. It can live in issue templates, agent instructions,
-skills, or custom agent profiles.
+This merges structure and provenance. The point is that the agent should consume
+explicit artifacts and distinguish different kinds of truth.
 
 ---
 
@@ -374,6 +246,10 @@ skills, or custom agent profiles.
 - asking multiple workers to decide independently
 - losing the reason behind a change
 
+As context fills, quality often drops.
+
+So ask: **what context earns its place?**
+
 Note:
 The "giant instruction file" warning is practical. Claude and Copilot docs both
 push toward concise persistent instructions plus skills/custom agents for repeatable
@@ -381,13 +257,7 @@ workflows.
 
 ---
 
-## Part 3
-
-# The agentic engineering stack
-
----
-
-## Stack overview
+## The agentic engineering stack
 
 ```mermaid
 flowchart TB
@@ -406,7 +276,7 @@ This diagram is the backbone of the talk. You can refer back to it during the re
 
 ---
 
-## Layer 1: intent
+## Layer: intent
 
 Weak intent:
 
@@ -432,7 +302,7 @@ comes from humans.
 
 ---
 
-## Layer 2: tools
+## Layer: tools and protocols
 
 A model sees tools through their interface.
 
@@ -444,45 +314,22 @@ Good tools are:
 - hard to misuse
 - explicit about side effects
 - noisy when they fail
-- cheap to call when possible
 
-Tool design is UX design for models.
+Two standards matter right now:
+
+```text
+MCP = agent -> tool/context
+A2A = agent -> agent
+```
 
 Note:
-Anthropic's SWE-bench writeup makes this point strongly: tool descriptions and
-error-proofing matter a lot.
+This merges tool design, MCP, and A2A into one slide. MCP is widely adopted across
+clients and servers. A2A is newer and focused on interoperability between opaque
+agentic applications.
 
 ---
 
-## Tool interface example
-
-Bad:
-
-```text
-run(command: string)
-```
-
-Better:
-
-```text
-run_test(
-  suite: "unit" | "integration",
-  target?: string,
-  timeout_seconds: number
-)
-```
-
-Best depends on the job.
-
-Power is useful. Ambiguity is expensive.
-
-Note:
-Do not imply every shell tool should be replaced. The point is that for repeated
-high-stakes operations, structured tools reduce failure.
-
----
-
-## Layer 3: workspace
+## Layer: workspace and runtime
 
 Agents need room to act.
 
@@ -495,102 +342,16 @@ They also need boundaries:
 - reproducible dependencies
 - clear cleanup rules
 
-Autonomy without isolation is just a fast blast radius.
-
-Note:
-Tie this to cloud agents using ephemeral environments, local CLI permission modes,
-Docker/sandbox patterns, and security posture.
-
----
-
-## Layer 4: runtime
-
 The runtime answers:
 
 - who owns the loop?
 - where does state live?
-- how are tools called?
-- how are interruptions handled?
-- can work resume after failure?
 - where is the trace?
 - where do humans approve?
 
-Agents are not just prompts.
-
-They are long-running programs with probabilistic components.
-
 Note:
-This connects to LangGraph durable execution, OpenAI sessions/tracing,
-AutoGen runtimes, Copilot cloud agent logs, etc.
-
----
-
-## Layer 5: protocols
-
-Two standards matter right now:
-
-| Protocol | Job |
-| --- | --- |
-| MCP | connect agents to tools, data, and workflows |
-| A2A | let agents discover and collaborate with other agents |
-
-Oversimplified:
-
-```text
-MCP = agent -> tool/context
-A2A = agent -> agent
-```
-
-Note:
-Use careful language. MCP is widely adopted across clients and servers. A2A is
-newer and focused on interoperability between opaque agentic applications.
-
----
-
-## MCP in one slide
-
-MCP is an open standard for connecting AI apps to external systems:
-
-- files
-- databases
-- issue trackers
-- browsers
-- design tools
-- internal services
-- prompts and workflows
-
-The value is not novelty.
-
-The value is **one connector shape across many agents**.
-
-Note:
-Reference the "USB-C for AI applications" analogy if useful, but do not overuse it.
-
----
-
-## A2A in one slide
-
-A2A is an open protocol for agent-to-agent collaboration:
-
-- capability discovery via agent cards
-- JSON-RPC over HTTP(S)
-- sync, streaming, and async task updates
-- task lifecycle and artifacts
-- modality negotiation
-- collaboration without exposing internal memory or tools
-
-This matters when teams stop having one agent
-and start having an ecosystem.
-
-Note:
-Mention that A2A complements MCP: MCP exposes tools/context; A2A connects
-agentic applications.
-
----
-
-## Part 4
-
-# Workflow patterns
+This merges workspace and runtime. Tie it to cloud agents using ephemeral environments,
+local CLI permission modes, Docker/sandbox patterns, and durable execution.
 
 ---
 
@@ -617,114 +378,33 @@ demonstrably improves outcomes. This is a practical architecture principle.
 
 ---
 
-## Pattern: prompt chain
-
-```mermaid
-flowchart LR
-    A["Draft"] --> B{"Gate"}
-    B -->|pass| C["Expand"]
-    B -->|fail| A
-    C --> D["Finalize"]
-```
-
-Use when:
-
-- steps are known
-- each step has clear inputs and outputs
-- intermediate checks improve quality
-
-Example:
+## Workflow patterns that work
 
 ```text
-issue -> spec -> review -> implementation plan
+prompt chain:
+  draft -> gate -> expand -> finalize
+
+routing:
+  classify -> bug path | feature path | docs path
+
+evaluator-optimizer:
+  implement -> test -> review -> fix -> test
 ```
 
-Note:
-This is a workflow, not a fully autonomous agent. Workflows are underrated.
+Use workflows when:
 
----
-
-## Pattern: routing
-
-```mermaid
-flowchart LR
-    Input["Task"] --> Router{"Classify"}
-    Router --> Bug["Bug fix path"]
-    Router --> Feature["Feature path"]
-    Router --> Docs["Docs path"]
-    Router --> Security["Security path"]
-```
-
-Use when:
-
-- tasks have distinct classes
-- each class needs different tools or standards
+- steps are known
+- quality criteria are clear
+- intermediate checks improve output
 - routing can be tested
 
 Note:
-Route routine tasks to cheaper/faster models or specialized agents; route risky
-tasks to stricter review.
+This compresses three pattern slides. Workflows are underrated; not every reliable
+system needs full autonomy.
 
 ---
 
-## Pattern: orchestrator-workers
-
-```mermaid
-flowchart TB
-    O["Orchestrator"] --> W1["Worker: frontend"]
-    O --> W2["Worker: backend"]
-    O --> W3["Worker: tests"]
-    W1 --> O
-    W2 --> O
-    W3 --> O
-    O --> S["Synthesis"]
-```
-
-Use when:
-
-- subtasks cannot be predicted upfront
-- exploration can be parallelized
-- synthesis is explicit
-
-Danger:
-
-- workers make conflicting hidden decisions
-
-Note:
-This is powerful but risky. Make the orchestrator own decisions; workers should
-return evidence and options, not silently commit architecture.
-
----
-
-## Pattern: evaluator-optimizer
-
-```mermaid
-flowchart LR
-    G["Generator"] --> A["Artifact"]
-    A --> E["Evaluator"]
-    E -->|feedback| G
-    E -->|pass| Done["Done"]
-```
-
-Use when:
-
-- quality criteria are clear
-- feedback improves output
-- loop cost is acceptable
-
-Coding version:
-
-```text
-implement -> test -> review -> fix -> test -> review
-```
-
-Note:
-This is the core loop behind serious coding agents. The evaluator can be tests,
-linters, another model, static analysis, human review, or telemetry.
-
----
-
-## Pattern: pipeline
+## The pipeline pattern
 
 ```mermaid
 flowchart LR
@@ -746,28 +426,8 @@ This is agentic engineering at team scale:
 - learnings update the system
 
 Note:
-This is where the private repo inspiration is abstracted: a multi-stage pipeline
-from idea to shipped code with quality gates and self-improvement.
-
----
-
-## A good pipeline artifact
-
-It should answer:
-
-- what changed?
-- why this approach?
-- what alternatives were rejected?
-- what files or systems are touched?
-- what risks remain?
-- what evidence was collected?
-- what should a human decide?
-
-If an artifact cannot be reviewed,
-it is not an engineering artifact.
-
-Note:
-This applies to specs, plans, code reviews, testing outputs, and rollouts.
+This is where the private inspiration is abstracted: a multi-stage pipeline from
+idea to shipped code with quality gates and self-improvement.
 
 ---
 
@@ -784,38 +444,16 @@ The bug is not "the models are dumb."
 
 The bug is **distributed unshared context**.
 
-Note:
-This reflects Cognition's context-engineering critique. Actions carry implicit
-decisions. If decisions are not shared, outputs diverge.
-
----
-
-## Safer multi-agent rules
-
-Use multiple agents for:
+Safer uses:
 
 - independent research
+- bounded specialist tasks
 - review from different perspectives
 - generating options
-- bounded specialist tasks
-- high-volume triage
-
-Be careful using multiple agents for:
-
-- concurrent code edits
-- architecture decisions
-- product scope decisions
-- anything with shared mutable state
 
 Note:
-This is a practical adoption rule. Parallelism is valuable, but coordination costs
-are real.
-
----
-
-## Part 5
-
-# Quality, safety, observability
+This merges the "where it goes wrong" and "safer rules" slides. Parallelism is
+valuable, but coordination costs are real. Actions carry implicit decisions.
 
 ---
 
@@ -848,8 +486,7 @@ criteria: tests, screenshots, builds, commands, etc.
 Useful gates:
 
 - spec completeness
-- architecture review
-- threat model
+- architecture / threat review
 - test coverage matrix
 - lint/typecheck/build
 - code review
@@ -910,22 +547,19 @@ isolation, and deterministic hooks.
 
 ## Observability for agents
 
-You want to know:
+You need a trace of:
 
-- what did it read?
-- what did it decide?
-- which tools did it call?
-- what failed?
-- what was retried?
-- how much did it cost?
-- where did humans intervene?
-- which outputs shipped?
-- did the result improve metrics?
+- inputs read
+- decisions made
+- tools called
+- failures, retries, and cost
+- human interventions
+- shipped outputs and metrics
 
 No trace, no trust.
 
 Note:
-Frame traces as both debugging and governance. Agentic systems need run logs like
+Frame traces as both debugging and governance: agentic systems need run logs like
 distributed systems need logs.
 
 ---
@@ -944,40 +578,30 @@ Agent evals ask:
 does this agent workflow still produce good work?
 ```
 
-Evaluate:
+Score runs on:
 
-- task success
-- correctness
-- cost
-- latency
-- tool misuse
-- review findings
-- regression patterns
+- accuracy
+- completeness
+- evidence
+- maintainability
+- acceleration
+- safety
 
-Note:
-Use SWE-bench as a public example of evaluating an agent system, not only a model.
-Internal evals can be much smaller and domain-specific.
+Track outcomes:
 
----
-
-## A useful grading rubric
-
-Score each run on:
-
-| Dimension | Question |
-| --- | --- |
-| accuracy | did it solve the right problem? |
-| completeness | did it cover required cases? |
-| evidence | did it verify claims? |
-| maintainability | would we want this code? |
-| acceleration | did it save real effort? |
-| safety | did it stay inside boundaries? |
+- cycle time to reviewed PR
+- defect rate after merge
+- review iterations
+- human interruption rate
+- cost per accepted change
+- tasks with reproducible evidence
 
 Then fix the pipeline, not just the one output.
 
 Note:
-This is the "self-improvement loop" idea. Grade, find systematic gaps, update
-instructions/tools/skills/templates, and measure again.
+This merges evals and the grading rubric. Use SWE-bench as a public example of
+evaluating an agent system, not only a model. Internal evals can be much smaller
+and domain-specific.
 
 ---
 
@@ -1008,12 +632,6 @@ production assets, not prompt scraps.
 
 ---
 
-## Part 6
-
-# Adoption playbook
-
----
-
 ## Start with the right tasks
 
 Good first tasks:
@@ -1040,77 +658,28 @@ Agentic engineering maturity starts with task selection.
 
 ---
 
-## Build a task intake template
+## Intake, skills, and custom agents
+
+Task intake should include:
 
 ```yaml
 goal: ...
 non_goals: ...
-authoritative_sources:
-  - issue
-  - spec
-  - file paths
-constraints:
-  - do not change public API
-  - keep backwards compatibility
-validation:
-  - command to run
-  - expected result
-human_checkpoints:
-  - before code
-  - before PR
+authoritative_sources: [...]
+constraints: [...]
+validation: [...]
+human_checkpoints: [...]
 ```
 
-Note:
-This is easy to adopt tomorrow. Put it in issue templates or agent skills.
+Use:
 
----
-
-## Create specialized agents carefully
-
-Good specialized agents have:
-
-- narrow purpose
-- clear trigger
-- explicit tools
-- domain rules
-- output format
-- escalation criteria
-- examples of good and bad output
-
-Bad specialized agents are just job titles:
-
-```text
-You are a 10x principal engineer...
-```
+- persistent instructions for repo commands, style rules, and gotchas
+- skills for repeatable procedures, templates, scripts, and examples
+- custom agents for narrow roles with explicit tools and escalation rules
 
 Note:
-Tie to custom agents in Copilot/Claude and open Agent Skills. Specificity beats
-persona inflation.
-
----
-
-## Skills beat giant memories
-
-Use persistent instructions for:
-
-- repo commands
-- style rules
-- workflow etiquette
-- non-obvious gotchas
-
-Use skills for:
-
-- repeatable procedures
-- domain playbooks
-- templates
-- scripts
-- examples
-
-Load the right knowledge at the right time.
-
-Note:
-This is current across Claude Code and Copilot agent skills. It also helps with
-context budget.
+This combines three adoption slides. Specificity beats persona inflation, and
+skills beat giant memories because they load the right knowledge at the right time.
 
 ---
 
@@ -1134,8 +703,7 @@ More time:
 - improving the system
 
 Note:
-This is optimistic but grounded. Engineering judgment becomes more important,
-not less.
+Engineering judgment becomes more important, not less.
 
 ---
 
@@ -1161,95 +729,6 @@ Good line: agents scale both good process and bad process.
 
 ---
 
-## Anti-pattern checklist
-
-Stop and redesign if:
-
-- nobody can explain why the agent changed something
-- humans approve without reading evidence
-- tests are optional
-- instructions conflict
-- tool errors are ignored
-- agents write to shared state concurrently
-- failures are fixed by adding more prompt text
-- there is no owner for agent behavior
-
-Note:
-This is intended as a take-home checklist.
-
----
-
-## What to measure
-
-Do not measure only:
-
-```text
-lines generated
-```
-
-Measure:
-
-- cycle time to reviewed PR
-- defect rate after merge
-- review iterations
-- test coverage changes
-- escaped incidents
-- human interruption rate
-- cost per accepted change
-- percent of tasks with reproducible evidence
-
-Note:
-If you only measure volume, you will optimize for garbage volume.
-
----
-
-## The adoption ladder
-
-```text
-Level 0: autocomplete
-Level 1: chat-assisted tasks
-Level 2: local agent mode
-Level 3: repeatable skills and custom agents
-Level 4: gated team workflows
-Level 5: closed-loop engineering pipeline
-```
-
-Most teams should aim for Level 3-4 before dreaming about Level 5.
-
-Note:
-This helps organizations locate themselves without hype.
-
----
-
-## A practical first month
-
-Week 1:
-
-- pick 3 task types
-- write intake template
-- document build/test commands
-
-Week 2:
-
-- create one skill or custom agent
-- add verification rules
-- capture traces and outcomes
-
-Week 3:
-
-- add review rubric
-- measure accepted vs rejected work
-
-Week 4:
-
-- update instructions based on failures
-- expand only if quality improves
-
-Note:
-No dates in the plan, just sequence. This makes the talk actionable.
-
----
-
 ## What not to outsource
 
 Keep humans accountable for:
@@ -1272,24 +751,6 @@ This is important for audience trust.
 
 ---
 
-## The future shape
-
-Expect more:
-
-- cloud agents working asynchronously
-- local agents with stronger sandboxing
-- shared skill ecosystems
-- MCP servers as internal platform APIs
-- A2A-style agent marketplaces
-- evals as part of CI/CD
-- agent traces in PR review
-- engineering managers reviewing throughput and quality by agent workflow
-
-Note:
-Make this future-facing but not sci-fi.
-
----
-
 ## The core lesson
 
 Agentic engineering is not about trusting agents more.
@@ -1298,56 +759,33 @@ It is about building systems where agents can be useful **without requiring blin
 
 That means:
 
-- grounded context
-- constrained tools
-- observable traces
-- explicit gates
-- human ownership
-- continuous improvement
+1. context engineering is the main leverage point
+2. workflows beat autonomy until autonomy is needed
+3. multi-agent systems need shared decisions
+4. verification is the difference between demo and production
+5. the best teams improve the pipeline, not just the prompt
 
 Note:
-This is the closing thesis. Pause after this.
+This merges the core lesson and takeaways. Pause after the trust line, then close
+with the numbered list.
 
 ---
 
-## Takeaways
+## Sources and Q&A
 
-1. Agents are software systems, not magic prompts.
-2. Context engineering is the main leverage point.
-3. Workflows beat autonomy until autonomy is needed.
-4. Multi-agent systems need shared decisions, not just parallel workers.
-5. Verification is the difference between demo and production.
-6. The best teams will improve the pipeline, not just the prompt.
+Further reading:
 
-Note:
-End with concrete takeaways.
-
----
-
-## Sources and further reading
-
-- [Anthropic: Building Effective Agents](https://www.anthropic.com/engineering/building-effective-agents)
-- [Anthropic: Claude Code Best Practices](https://www.anthropic.com/engineering/claude-code-best-practices)
-- [OpenAI Agents SDK](https://openai.github.io/openai-agents-python/)
-- [OpenAI: A Practical Guide to Building Agents](https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf)
-- [GitHub Docs: Copilot cloud agent](https://docs.github.com/en/copilot/using-github-copilot/coding-agent/about-assigning-tasks-to-copilot)
-- [GitHub Docs: custom agents and agent skills](https://docs.github.com/en/copilot/concepts/agents/about-agent-skills)
-- [Model Context Protocol](https://modelcontextprotocol.io/introduction)
-- [Agent2Agent Protocol](https://github.com/a2aproject/A2A)
-- [LangGraph](https://docs.langchain.com/oss/python/langgraph/overview), [AutoGen](https://microsoft.github.io/autogen/stable/index.html), [CrewAI](https://docs.crewai.com/introduction), [smolagents](https://huggingface.co/docs/smolagents/en/index)
-- [Cognition: Principles of Context Engineering](https://cognition.ai/blog/dont-build-multi-agents)
-- [SWE-bench / SWE-bench Verified](https://www.swebench.com/)
-
-Note:
-These are public sources used to calibrate the talk. The talk intentionally avoids
-referencing private systems directly.
-
----
-
-## Q&A
+- Anthropic: Building Effective Agents; Claude Code Best Practices
+- OpenAI Agents SDK; Practical Guide to Building Agents
+- GitHub Docs: Copilot coding agent, custom agents, and agent skills
+- Model Context Protocol; Agent2Agent Protocol
+- LangGraph, AutoGen, CrewAI, smolagents
+- Cognition: Principles of Context Engineering
+- SWE-bench / SWE-bench Verified
 
 # What would you let an agent ship?
 
 Note:
-Use this as discussion prompt. Ask the audience to think about a task they would
-delegate tomorrow and what evidence they would require before accepting it.
+These are public sources used to calibrate the talk. The talk intentionally avoids
+referencing private systems directly. Use the Q&A prompt to ask the audience to
+think about a task they would delegate tomorrow and what evidence they would require.
