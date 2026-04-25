@@ -129,12 +129,14 @@ generated `public/slides/` directory is gitignored and never committed.
    talks/<category>/<Talk Name>/
      presentation.md    ← Slide content (Markdown for reveal-md)
      meta.json          ← Metadata: { "slug": "my-talk", "tag": "Topic" }
+     abstract.md        ← Talk abstract for CFPs, event pages, and reuse
    ```
 
 2. **That's it.** The build script (`scripts/build-slides.mjs`) auto-discovers all
    `presentation.md` files, reads `meta.json` for metadata, builds the slides, and generates a
    `public/slides/talks.json` manifest. The talks page and home page read from this manifest
-   automatically.
+   automatically. `abstract.md` is source content for submissions and event pages; it is kept beside
+   the presentation even though the build script does not consume it.
 
 ### Talk Categories
 
@@ -160,6 +162,19 @@ Each talk directory **must** include a `meta.json`:
 | `tag`  | Topic badge shown on the talks page (e.g., "AI", "C#", ".NET") |
 
 If `meta.json` is missing, the slug is auto-generated from the directory name (slugified).
+
+### abstract.md
+
+Every new talk directory **must** include an `abstract.md` file beside `presentation.md` and
+`meta.json`. Use it for the CFP/event-page abstract and keep it aligned with the presentation.
+
+Recommended format:
+
+```markdown
+# Talk Title
+
+One to three concise paragraphs describing the talk, target audience, and what attendees will learn.
+```
 
 ### Presentation Format
 
@@ -335,8 +350,10 @@ No other files need to be modified.
      "tag": "Topic"
    }
    ```
-5. Run `bun run build` to verify slides build correctly
-6. Commit: `git add . && git commit -m "feat(talks): add <talk-name> presentation"`
+5. Create `abstract.md` in the same folder with the talk title and a concise CFP/event-page
+   abstract.
+6. Run `bun run build` to verify slides build correctly
+7. Commit: `git add . && git commit -m "feat(talks): add <talk-name> presentation"`
 
 The slides are **automatically** added to:
 - The talks page (`/talks`) as a slide deck card
