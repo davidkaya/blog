@@ -1,0 +1,7 @@
+# Agentic Engineering
+
+AI coding agents are moving beyond autocomplete. They can inspect repositories, edit multiple files, run tests, open branches and pull requests, call tools through protocols like MCP, and keep working asynchronously in local or cloud environments. The challenge is no longer only whether the model is capable enough; it is whether we can build engineering systems around agents that make their work reliable, reviewable, and safe.
+
+This 40-45 minute talk introduces agentic engineering as the discipline of designing those systems: clear intent, curated context, scoped tools, sandboxed workspaces, observable traces, quality gates, human decision points, and feedback loops that improve the workflow over time. It contrasts vibe coding with production-grade agent workflows, explains when to use simple workflows versus autonomous or multi-agent systems, and shows how standards such as MCP and A2A fit into the emerging stack.
+
+Attendees will leave with a practical adoption playbook: how to choose the right first tasks, write agent-ready intake templates, create skills or custom agents without bloating context, verify outputs with tests and reviews, and measure agentic work by accepted outcomes rather than generated lines of code.
