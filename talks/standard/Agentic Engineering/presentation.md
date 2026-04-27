@@ -6,7 +6,7 @@ title: Agentic Engineering
 
 ### Building software with agents, not just prompts
 
-40 minutes
+**David Kaya** · Senior Software Engineer at Microsoft
 
 Note:
 Opening framing: this is not a "how to prompt better" talk.
