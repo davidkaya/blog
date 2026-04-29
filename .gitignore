@@ -25,4 +25,5 @@ pnpm-debug.log*
 
 # slides (built from source during build)
 public/slides/
+public/powerpoint/
 .slides-tmp/
