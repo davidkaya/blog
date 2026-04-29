@@ -212,8 +212,8 @@ The `scripts/build-powerpoint.mjs` script:
 1. Uses the same talk discovery and `meta.json` slug metadata as the reveal.js build
 2. Converts each `presentation.md` into a `.pptx` deck in `public/powerpoint/<slug>.pptx`
 3. Preserves presenter notes via PowerPoint speaker notes
-4. Supports headings, lists, tables, code blocks, and Mermaid source blocks; it is a pragmatic
-   export, not a pixel-perfect copy of the reveal.js theme
+4. Supports headings, lists, tables, code blocks, and locally rendered Mermaid diagrams; it is a
+   pragmatic export, not a pixel-perfect copy of the reveal.js theme
 
 ---
 

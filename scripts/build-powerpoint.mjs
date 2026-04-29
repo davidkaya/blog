@@ -9,10 +9,14 @@
  */
 
 import pptxgen from "pptxgenjs";
-import { existsSync, mkdirSync, readFileSync, rmSync } from "fs";
+import puppeteer from "puppeteer";
+import { createRequire } from "module";
+import { mkdirSync, readFileSync, rmSync } from "fs";
 import { join } from "path";
 import { discoverTalks, TALKS_DIR } from "./talk-utils.mjs";
 
+const require = createRequire(import.meta.url);
+const MERMAID_SCRIPT = require.resolve("mermaid/dist/mermaid.min.js");
 const OUT_DIR = join("public", "powerpoint");
 const SLIDE_W = 13.333;
 const SLIDE_H = 7.5;
@@ -33,6 +37,122 @@ const COLORS = {
   gold: "E6B450",
   green: "23D18B",
 };
+
+const TEXT_BASE = {
+  breakLine: false,
+  fit: "none",
+  margin: 0,
+  paraSpaceAfter: 0,
+  paraSpaceBefore: 0,
+  valign: "top",
+};
+
+class MermaidRenderer {
+  browser = null;
+  page = null;
+  renderCount = 0;
+
+  async init() {
+    if (this.page) return;
+
+    this.browser = await puppeteer.launch({ headless: "new" });
+    this.page = await this.browser.newPage();
+    await this.page.setViewport({
+      width: 1600,
+      height: 1000,
+      deviceScaleFactor: 2,
+    });
+    await this.page.setContent(`
+      <!doctype html>
+      <html>
+        <body>
+          <div id="mermaid-target"></div>
+        </body>
+      </html>
+    `);
+    await this.page.addStyleTag({
+      content: `
+        html, body {
+          background: transparent;
+          margin: 0;
+          padding: 0;
+        }
+
+        #mermaid-target {
+          display: inline-block;
+          background: transparent;
+        }
+
+        #mermaid-target svg {
+          background: transparent !important;
+          display: block;
+        }
+      `,
+    });
+    await this.page.addScriptTag({ path: MERMAID_SCRIPT });
+    await this.page.evaluate((themeVariables) => {
+      mermaid.initialize({
+        startOnLoad: false,
+        securityLevel: "loose",
+        theme: "dark",
+        themeVariables,
+      });
+    }, {
+      background: "transparent",
+      mainBkg: `#${COLORS.surface}`,
+      primaryColor: `#${COLORS.surface}`,
+      primaryTextColor: `#${COLORS.bright}`,
+      primaryBorderColor: `#${COLORS.cyan}`,
+      lineColor: `#${COLORS.cyan}`,
+      secondaryColor: `#${COLORS.surfaceAlt}`,
+      tertiaryColor: `#${COLORS.bg}`,
+      edgeLabelBackground: `#${COLORS.bg}`,
+      clusterBkg: `#${COLORS.bg}`,
+      clusterBorder: `#${COLORS.border}`,
+      fontFamily: "JetBrains Mono, Cascadia Code, monospace",
+    });
+  }
+
+  async render(source) {
+    await this.init();
+
+    const id = `mermaid-${++this.renderCount}`;
+    await this.page.evaluate(async ({ id, source }) => {
+      const target = document.getElementById("mermaid-target");
+      target.innerHTML = "";
+
+      const result = await mermaid.render(id, source);
+      target.innerHTML = result.svg;
+
+      const svg = target.querySelector("svg");
+      svg.removeAttribute("height");
+      svg.style.background = "transparent";
+    }, { id, source });
+
+    const element = await this.page.$("#mermaid-target svg");
+    if (!element) {
+      throw new Error("Mermaid rendered no SVG output.");
+    }
+
+    const box = await element.boundingBox();
+    const image = await element.screenshot({
+      encoding: "base64",
+      omitBackground: true,
+    });
+
+    return {
+      data: `image/png;base64,${image}`,
+      width: Math.max(1, box?.width || 1),
+      height: Math.max(1, box?.height || 1),
+    };
+  }
+
+  async close() {
+    if (this.browser) {
+      await this.browser.close();
+    }
+  }
+}
 
 function stripFrontmatter(markdown) {
   return markdown.replace(/^---\s*\n[\s\S]*?\n---\s*\n?/, "");
@@ -184,10 +304,19 @@ function parseBlocks(markdown) {
 }
 
 function estimateLines(text, width, fontSize) {
-  const charsPerLine = Math.max(20, Math.floor((width * 17) / Math.max(fontSize, 8)));
+  const averageMonoCharWidth = fontSize * 0.62;
+  const charsPerLine = Math.max(20, Math.floor((width * 72) / averageMonoCharWidth));
   return text
     .split("\n")
     .reduce((count, line) => count + Math.max(1, Math.ceil(line.length / charsPerLine)), 0);
+}
+
+async function renderMermaidBlocks(blocks, renderer) {
+  for (const block of blocks) {
+    if (block.type === "code" && block.language === "mermaid") {
+      block.image = await renderer.render(block.text);
+    }
+  }
 }
 
 function addSlideChrome(pptx, slide, talk, slideNumber, slideCount) {
@@ -207,6 +336,7 @@ function addSlideChrome(pptx, slide, talk, slideNumber, slideCount) {
     fontFace: "JetBrains Mono",
     fontSize: 7,
     color: COLORS.muted,
+    ...TEXT_BASE,
   });
   slide.addText(`${slideNumber}/${slideCount}`, {
     x: 11.85,
@@ -217,6 +347,7 @@ function addSlideChrome(pptx, slide, talk, slideNumber, slideCount) {
     fontSize: 7,
     color: COLORS.muted,
     align: "right",
+    ...TEXT_BASE,
   });
 }
 
@@ -236,6 +367,7 @@ function renderTitleSlide(slide, blocks) {
     color: COLORS.cyan,
     align: "center",
     fit: "shrink",
+    margin: 0,
   });
   slide.addText(subtitle, {
     x: 0.9,
@@ -247,6 +379,7 @@ function renderTitleSlide(slide, blocks) {
     color: COLORS.gold,
     align: "center",
     fit: "shrink",
+    margin: 0,
   });
   slide.addText(byline, {
     x: 1.2,
@@ -258,6 +391,7 @@ function renderTitleSlide(slide, blocks) {
     color: COLORS.bright,
     align: "center",
     fit: "shrink",
+    margin: 0,
   });
 }
 
@@ -276,7 +410,7 @@ function renderHeading(slide, block, y) {
     fontSize,
     bold: true,
     color,
-    fit: "shrink",
+    ...TEXT_BASE,
   });
 
   return y + height + (isMain ? 0.22 : 0.1);
@@ -285,7 +419,7 @@ function renderHeading(slide, block, y) {
 function renderParagraph(slide, block, y, options = {}) {
   const fontSize = options.fontSize || 14;
   const lines = estimateLines(block.text, BODY_W, fontSize);
-  const height = Math.max(0.34, lines * 0.25);
+  const height = Math.max(0.34, lines * fontSize * 0.018);
 
   slide.addText(block.text, {
     x: BODY_X,
@@ -297,9 +431,8 @@ function renderParagraph(slide, block, y, options = {}) {
     color: options.color || COLORS.text,
     bold: options.bold || false,
     italic: options.italic || false,
-    fit: "shrink",
-    breakLine: false,
-    valign: "top",
+    lineSpacing: Math.round(fontSize * 1.1),
+    ...TEXT_BASE,
   });
 
   return y + Math.min(height, BODY_BOTTOM - y) + 0.14;
@@ -309,8 +442,9 @@ function renderList(slide, block, y) {
   const text = block.items
     .map((item, index) => `${block.ordered ? `${index + 1}.` : "-"} ${item}`)
     .join("\n");
-  const lines = estimateLines(text, BODY_W, 13);
-  const height = Math.max(0.45, lines * 0.27);
+  const fontSize = 13;
+  const lines = estimateLines(text, BODY_W - 0.2, fontSize);
+  const height = Math.max(0.45, lines * fontSize * 0.02);
 
   slide.addText(text, {
     x: BODY_X + 0.15,
@@ -318,22 +452,24 @@ function renderList(slide, block, y) {
     w: BODY_W - 0.2,
     h: Math.min(height, BODY_BOTTOM - y),
     fontFace: "JetBrains Mono",
-    fontSize: 13,
+    fontSize,
     color: COLORS.text,
-    fit: "shrink",
-    breakLine: false,
-    valign: "top",
+    lineSpacing: Math.round(fontSize * 1.12),
+    ...TEXT_BASE,
   });
 
   return y + Math.min(height, BODY_BOTTOM - y) + 0.14;
 }
 
 function renderCode(slide, pptx, block, y) {
-  const label = block.language === "mermaid" ? "mermaid diagram source" : block.language;
-  const text = block.language === "mermaid" ? `${label}\n\n${block.text}` : block.text;
-  const fontSize = block.language === "mermaid" ? 8.5 : 9.5;
+  if (block.language === "mermaid" && block.image) {
+    return renderMermaidImage(slide, pptx, block, y);
+  }
+
+  const text = block.text;
+  const fontSize = 9.5;
   const lines = estimateLines(text, BODY_W - 0.25, fontSize);
-  const height = Math.min(Math.max(0.65, lines * 0.18 + 0.2), BODY_BOTTOM - y);
+  const height = Math.min(Math.max(0.65, lines * fontSize * 0.017 + 0.24), BODY_BOTTOM - y);
 
   slide.addShape(pptx.ShapeType.rect, {
     x: BODY_X,
@@ -351,12 +487,42 @@ function renderCode(slide, pptx, block, y) {
     fontFace: "Cascadia Code",
     fontSize,
     color: COLORS.bright,
-    fit: "shrink",
-    breakLine: false,
-    valign: "top",
+    lineSpacing: Math.round(fontSize * 1.1),
+    ...TEXT_BASE,
   });
 
   return y + height + 0.18;
+}
+
+function renderMermaidImage(slide, pptx, block, y) {
+  const availableHeight = Math.max(0.5, BODY_BOTTOM - y);
+  const maxHeight = Math.min(availableHeight, 4.9);
+  const aspect = block.image.width / block.image.height;
+  let w = Math.min(BODY_W, maxHeight * aspect);
+  let h = w / aspect;
+
+  if (h > maxHeight) {
+    h = maxHeight;
+    w = h * aspect;
+  }
+
+  slide.addShape(pptx.ShapeType.rect, {
+    x: BODY_X,
+    y,
+    w: BODY_W,
+    h: h + 0.2,
+    fill: { color: COLORS.surface },
+    line: { color: COLORS.border, width: 0.8 },
+  });
+  slide.addImage({
+    data: block.image.data,
+    x: BODY_X + (BODY_W - w) / 2,
+    y: y + 0.1,
+    w,
+    h,
+  });
+
+  return y + h + 0.38;
 }
 
 function renderTable(slide, pptx, block, y) {
@@ -393,8 +559,8 @@ function renderTable(slide, pptx, block, y) {
         fontSize,
         bold: isHeader,
         color: isHeader ? COLORS.cyan : COLORS.text,
-        fit: "shrink",
-        valign: "top",
+        lineSpacing: Math.round(fontSize * 1.05),
+        ...TEXT_BASE,
       });
     });
   });
@@ -452,6 +618,7 @@ async function buildTalk(talk) {
   const markdown = readFileSync(talk.src, "utf-8");
   const slides = splitSlides(markdown);
   const pptx = new pptxgen();
+  const mermaidRenderer = new MermaidRenderer();
 
   pptx.defineLayout({ name: "BLOG_WIDE", width: SLIDE_W, height: SLIDE_H });
   pptx.layout = "BLOG_WIDE";
@@ -466,32 +633,56 @@ async function buildTalk(talk) {
     lang: "en-US",
   };
 
-  slides.forEach((deckSlide, index) => {
-    const slide = pptx.addSlide();
-    const blocks = parseBlocks(deckSlide.body);
-    addSlideChrome(pptx, slide, talk, index + 1, slides.length);
+  try {
+    for (const [index, deckSlide] of slides.entries()) {
+      const slide = pptx.addSlide();
+      const blocks = parseBlocks(deckSlide.body);
+      await renderMermaidBlocks(blocks, mermaidRenderer);
+      addSlideChrome(pptx, slide, talk, index + 1, slides.length);
 
-    if (index === 0) {
-      renderTitleSlide(slide, blocks);
-    } else {
-      renderContentSlide(slide, pptx, blocks);
-    }
+      if (index === 0) {
+        renderTitleSlide(slide, blocks);
+      } else {
+        renderContentSlide(slide, pptx, blocks);
+      }
 
-    if (deckSlide.notes) {
-      slide.addNotes(deckSlide.notes);
+      if (deckSlide.notes) {
+        slide.addNotes(deckSlide.notes);
+      }
     }
-  });
+  } finally {
+    await mermaidRenderer.close();
+  }
 
   const outFile = join(OUT_DIR, `${talk.slug}.pptx`);
-  await pptx.writeFile({ fileName: outFile });
+  try {
+    await pptx.writeFile({ fileName: outFile });
+  } catch (error) {
+    if (error?.code === "EPERM") {
+      throw new Error(`${outFile} is locked. Close it in PowerPoint or Explorer preview and try again.`);
+    }
+    throw error;
+  }
   console.log(`✓ ${outFile}`);
 }
 
 const talks = discoverTalks(TALKS_DIR);
 console.log(`Found ${talks.length} talk(s): ${talks.map((t) => t.slug).join(", ")}`);
 
-if (existsSync(OUT_DIR)) rmSync(OUT_DIR, { recursive: true });
 mkdirSync(OUT_DIR, { recursive: true });
+
+for (const talk of talks) {
+  const outFile = join(OUT_DIR, `${talk.slug}.pptx`);
+  try {
+    rmSync(outFile, { force: true, maxRetries: 5, retryDelay: 200 });
+  } catch (error) {
+    if (error?.code === "EPERM") {
+      console.warn(`! ${outFile} is locked; attempting to overwrite it.`);
+    } else {
+      throw error;
+    }
+  }
+}
 
 for (const talk of talks) {
   await buildTalk(talk);
