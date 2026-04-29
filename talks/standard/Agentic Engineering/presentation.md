@@ -1113,6 +1113,7 @@ Further reading:
 - LangGraph, AutoGen, CrewAI, smolagents
 - Cognition: Principles of Context Engineering
 - SWE-bench / SWE-bench Verified
+- Demo project: `./demo/pulsewatch-agentic-demo`
 
 # What would you let an agent ship?
 

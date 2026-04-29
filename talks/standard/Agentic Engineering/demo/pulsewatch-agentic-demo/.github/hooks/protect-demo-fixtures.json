@@ -1,0 +1,12 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "type": "command",
+        "command": "node scripts/hooks/protect-demo-fixtures.mjs",
+        "windows": "node scripts\\hooks\\protect-demo-fixtures.mjs",
+        "timeout": 5
+      }
+    ]
+  }
+}
