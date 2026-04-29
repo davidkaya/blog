@@ -78,7 +78,7 @@ The `url` field is optional — omit it for talks without an external link.
 │   └── consts.ts           # Site title, description, author
 ├── talks/                  # Presentation source (Markdown + reveal-md config)
 ├── scripts/                # Build scripts (slides pipeline)
-├── public/                 # Static assets (slides/ is generated, gitignored)
+├── public/                 # Static assets (slides/ and powerpoint/ are generated, gitignored)
 └── astro.config.mjs        # Astro config
 ```
 
@@ -89,7 +89,8 @@ The `url` field is optional — omit it for talks without an external link.
 | `bun install`          | Install dependencies                        |
 | `bun run dev`          | Start dev server at `localhost:4321`         |
 | `bun run build`        | Build slides from source + build Astro site |
-| `bun run build:slides` | Build only the slides                       |
+| `bun run build:slides` | Build only the reveal.js slides             |
+| `bun run build:powerpoint` | Build PowerPoint decks into `public/powerpoint/` |
 | `bun run preview`      | Preview built site locally                  |
 
 ## License

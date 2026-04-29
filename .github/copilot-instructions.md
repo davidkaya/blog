@@ -42,9 +42,12 @@ blog/
 │   ├── lightning/          ← Short talks (5–15 min)
 │   └── standard/           ← Full-length talks (30–45 min)
 ├── scripts/
-│   └── build-slides.mjs   ← Auto-discovers talks, builds slides, outputs manifest
+│   ├── build-slides.mjs   ← Auto-discovers talks, builds reveal.js slides, outputs manifest
+│   ├── build-powerpoint.mjs ← Auto-discovers talks, builds PowerPoint decks
+│   └── talk-utils.mjs     ← Shared talk discovery helpers
 ├── public/                ← Static assets (copied as-is to dist/)
-│   └── slides/            ← ⚠️ GENERATED — gitignored, built from talks/ source
+│   ├── slides/            ← ⚠️ GENERATED — gitignored, built from talks/ source
+│   └── powerpoint/        ← ⚠️ GENERATED — gitignored, built from talks/ source
 ├── astro.config.mjs       ← Astro config (site URL, MDX, sitemap, Shiki themes)
 └── package.json           ← Scripts: dev, build (slides + astro), preview
 ```
@@ -65,7 +68,8 @@ blog/
 | ------------------- | ---------------------------------------------- |
 | `bun run dev`       | Start Astro dev server (no slides build)       |
 | `bun run build`     | Build slides from source + build Astro site    |
-| `bun run build:slides` | Build only the slides                       |
+| `bun run build:slides` | Build only the reveal.js slides             |
+| `bun run build:powerpoint` | Build PowerPoint decks into `public/powerpoint/` |
 | `bun run preview`   | Preview the built site locally                 |
 
 ---
@@ -120,7 +124,9 @@ z.object({
 ## Talks & Slides
 
 Talk source files live in `talks/`. Slides are **built from source** during `bun run build` — the
-generated `public/slides/` directory is gitignored and never committed.
+generated `public/slides/` directory is gitignored and never committed. PowerPoint decks can be
+generated on demand with `bun run build:powerpoint`; the generated `public/powerpoint/` directory is
+also gitignored and never committed.
 
 ### Adding a New Talk
 
@@ -200,6 +206,14 @@ The `scripts/build-slides.mjs` script:
 4. Deduplicates shared reveal.js assets (dist/, plugin/, css/) to `public/slides/` root
 5. Patches HTML paths in each talk to reference shared assets via `../`
 6. Outputs `public/slides/talks.json` manifest consumed by Astro pages
+
+The `scripts/build-powerpoint.mjs` script:
+
+1. Uses the same talk discovery and `meta.json` slug metadata as the reveal.js build
+2. Converts each `presentation.md` into a `.pptx` deck in `public/powerpoint/<slug>.pptx`
+3. Preserves presenter notes via PowerPoint speaker notes
+4. Supports headings, lists, tables, code blocks, and Mermaid source blocks; it is a pragmatic
+   export, not a pixel-perfect copy of the reveal.js theme
 
 ---
 
@@ -297,8 +311,9 @@ prose styling.
 - **Astro scoped CSS + data-theme** — Astro scopes component CSS with `data-astro-cid-*` attributes.
   Selectors targeting `[data-theme]` on the root element must use `:global()` to prevent incorrect
   scoping (e.g., `:global([data-theme="light"]) .my-class`).
-- **Slides are gitignored** — `public/slides/` is generated during build from `talks/` source.
-  Never commit built slides. Always run `bun run build` to regenerate.
+- **Slides are gitignored** — `public/slides/` and `public/powerpoint/` are generated from `talks/`
+  source. Never commit built slides. Always run `bun run build` to regenerate reveal.js slides, and
+  run `bun run build:powerpoint` when PowerPoint decks are needed.
 - **Site URL** is `https://kaya.sk` (configured in `astro.config.mjs`).
 - **Dual licensing** — code is GPLv3 (`LICENSE`), content (blog posts + presentations) is CC BY 4.0
   (`LICENSE-CONTENT`). Do not mix licenses or add license headers to individual files.

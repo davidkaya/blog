@@ -19,12 +19,10 @@ import {
   mkdirSync,
   readFileSync,
   writeFileSync,
-  readdirSync,
-  statSync,
 } from "fs";
-import { join, dirname, basename } from "path";
+import { join } from "path";
+import { discoverTalks, TALKS_DIR } from "./talk-utils.mjs";
 
-const TALKS_DIR = "talks";
 const OUT_DIR = join("public", "slides");
 const TMP_DIR = ".slides-tmp";
 const SHARED_DIRS = ["dist", "plugin", "css", "_assets"];
@@ -50,49 +48,8 @@ function patchHtml(filePath) {
   writeFileSync(filePath, content);
 }
 
-/** Recursively find all presentation.md files under a directory */
-function findPresentations(dir) {
-  const results = [];
-  for (const entry of readdirSync(dir)) {
-    const full = join(dir, entry);
-    if (statSync(full).isDirectory()) {
-      results.push(...findPresentations(full));
-    } else if (entry === "presentation.md") {
-      results.push(full);
-    }
-  }
-  return results;
-}
-
-/** Slugify a directory name: lowercase, replace non-alphanum with hyphens */
-function slugify(name) {
-  return name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "");
-}
-
 // Discover talks
-const presentations = findPresentations(TALKS_DIR);
-const talks = presentations.map((src) => {
-  const talkDir = dirname(src);
-  const title = basename(talkDir);
-  const metaPath = join(talkDir, "meta.json");
-  const meta = existsSync(metaPath)
-    ? JSON.parse(readFileSync(metaPath, "utf-8"))
-    : {};
-  // Extract category from path: talks/<category>/<Talk Name>/presentation.md
-  const relPath = src.replace(/\\/g, "/");
-  const parts = relPath.split("/");
-  const category = parts.length >= 3 ? parts[1] : "other";
-  return {
-    slug: meta.slug || slugify(title),
-    tag: meta.tag || "",
-    category,
-    title,
-    src,
-  };
-});
+const talks = discoverTalks(TALKS_DIR);
 
 console.log(`Found ${talks.length} talk(s): ${talks.map((t) => t.slug).join(", ")}`);
 
