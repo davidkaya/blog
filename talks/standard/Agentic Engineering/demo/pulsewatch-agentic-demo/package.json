@@ -1,0 +1,17 @@
+{
+  "name": "pulsewatch-agentic-demo",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "demo:summary": "node src/cli.mjs summary",
+    "demo:brief": "node src/cli.mjs brief INC-1042",
+    "check:brief": "node scripts/check-brief.mjs docs/status-updates/example-customer-update.md",
+    "check": "npm test && npm run demo:brief && npm run check:brief",
+    "mcp": "node mcp-server/index.mjs",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

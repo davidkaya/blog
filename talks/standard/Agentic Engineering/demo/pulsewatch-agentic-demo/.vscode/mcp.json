@@ -1,0 +1,9 @@
+{
+  "servers": {
+    "pulsewatch": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["${workspaceFolder}/mcp-server/index.mjs"]
+    }
+  }
+}

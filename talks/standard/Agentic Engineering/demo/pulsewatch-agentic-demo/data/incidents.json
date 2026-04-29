@@ -1,0 +1,73 @@
+[
+  {
+    "id": "INC-1042",
+    "service": "payments-api",
+    "title": "Elevated checkout payment failures",
+    "severity": "SEV2",
+    "status": "mitigating",
+    "startedAt": "2026-04-29T10:12:00Z",
+    "updatedAt": "2026-04-29T11:04:00Z",
+    "impact": "Customers in the EU region may see payment authorization timeouts during checkout.",
+    "impactedUsers": 1380,
+    "owner": "payments-oncall",
+    "customerTone": "direct, calm, no blame",
+    "nextUpdateDueMinutes": 30,
+    "metrics": {
+      "errorRate": 0.073,
+      "p95LatencyMs": 1890,
+      "burnRate": 5.4
+    },
+    "signals": [
+      "Gateway timeout spike after routing change",
+      "Rollback completed for the latest payments-api deployment",
+      "Third-party processor latency remains above normal"
+    ]
+  },
+  {
+    "id": "INC-1043",
+    "service": "checkout-web",
+    "title": "Checkout confirmation page latency",
+    "severity": "SEV3",
+    "status": "investigating",
+    "startedAt": "2026-04-29T10:42:00Z",
+    "updatedAt": "2026-04-29T10:58:00Z",
+    "impact": "Some customers see a delay after completing payment, but orders are still being created.",
+    "impactedUsers": 210,
+    "owner": "web-oncall",
+    "customerTone": "reassuring and specific",
+    "nextUpdateDueMinutes": 45,
+    "metrics": {
+      "errorRate": 0.014,
+      "p95LatencyMs": 2300,
+      "burnRate": 1.8
+    },
+    "signals": [
+      "Frontend Real User Monitoring reports a p95 regression",
+      "Order creation API remains healthy",
+      "Cache hit rate dropped after content rollout"
+    ]
+  },
+  {
+    "id": "INC-1037",
+    "service": "payments-api",
+    "title": "Processor webhook retries",
+    "severity": "SEV3",
+    "status": "resolved",
+    "startedAt": "2026-04-28T16:10:00Z",
+    "updatedAt": "2026-04-28T17:02:00Z",
+    "impact": "A small number of settlement webhooks were delayed and retried successfully.",
+    "impactedUsers": 28,
+    "owner": "payments-oncall",
+    "customerTone": "concise",
+    "nextUpdateDueMinutes": 0,
+    "metrics": {
+      "errorRate": 0.002,
+      "p95LatencyMs": 420,
+      "burnRate": 0.4
+    },
+    "signals": [
+      "Retry queue drained",
+      "Processor status page reports normal operation"
+    ]
+  }
+]
