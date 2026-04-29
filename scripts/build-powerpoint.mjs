@@ -58,9 +58,9 @@ class MermaidRenderer {
     this.browser = await puppeteer.launch({ headless: "new" });
     this.page = await this.browser.newPage();
     await this.page.setViewport({
-      width: 1600,
-      height: 1000,
-      deviceScaleFactor: 2,
+      width: 5000,
+      height: 3000,
+      deviceScaleFactor: 3,
     });
     await this.page.setContent(`
       <!doctype html>
@@ -95,6 +95,10 @@ class MermaidRenderer {
         startOnLoad: false,
         securityLevel: "loose",
         theme: "dark",
+        flowchart: {
+          htmlLabels: true,
+          useMaxWidth: false,
+        },
         themeVariables,
       });
     }, {
@@ -125,7 +129,18 @@ class MermaidRenderer {
       target.innerHTML = result.svg;
 
       const svg = target.querySelector("svg");
-      svg.removeAttribute("height");
+      const viewBox = svg
+        .getAttribute("viewBox")
+        ?.split(/\s+/)
+        .map(Number);
+      const naturalWidth = viewBox?.[2] || svg.getBBox().width;
+      const naturalHeight = viewBox?.[3] || svg.getBBox().height;
+
+      svg.setAttribute("width", String(Math.ceil(naturalWidth)));
+      svg.setAttribute("height", String(Math.ceil(naturalHeight)));
+      svg.style.width = `${Math.ceil(naturalWidth)}px`;
+      svg.style.height = `${Math.ceil(naturalHeight)}px`;
+      svg.style.maxWidth = "none";
       svg.style.background = "transparent";
     }, { id, source });
 
