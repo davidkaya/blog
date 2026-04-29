@@ -18,7 +18,9 @@
     "sharp": "^0.34.3"
   },
   "devDependencies": {
+    "mermaid": "11.4.0",
     "pptxgenjs": "^4.0.1",
+    "puppeteer": "23.9.0",
     "reveal-md": "^6.1.4"
   }
 }
